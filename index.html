@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>foner · AI phone receptionist for trades</title>
+<meta name="description" content="foner answers the calls you miss, takes the caller's details and texts you a summary the moment they hang up. Built for UK trades and small businesses.">
+<meta name="theme-color" content="#070F1C">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta property="og:title" content="foner · Every call. Answered.">
+<meta property="og:description" content="An AI receptionist that answers the calls you miss and sends you the details straight away.">
+<meta property="og:image" content="assets/foner-logo-horizontal.png">
+<style>
+:root{
+  --navy:#070F1C;--navy-card:#0E1A2D;--navy-border:#1E2B42;--navy-input:#26344D;
+  --muted-navy:#9AA6B8;--soft-navy:#C3CCDA;--cyan:#1FE2FE;
+  --accent:#1A64E8;--text:#1D1D1F;--muted:#6E6E73;--grey:#F5F5F7;--line:#D2D2D7;
+  --btn:linear-gradient(135deg,#1A64E8 0%,#5B3CF5 100%);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#fff;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:17px;line-height:1.47;letter-spacing:-0.022em;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto}
+section{padding:96px 22px}
+.dark{background:var(--navy);color:#fff}
+.grey{background:var(--grey)}
+.center{text-align:center;display:flex;flex-direction:column;align-items:center}
+.eb{font-size:13px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--accent)}
+.dark .eb{color:var(--cyan)}
+h1,h2,h3{margin:0;font-weight:600}
+h2{font-size:clamp(36px,6vw,56px);line-height:1.07;letter-spacing:-0.005em}
+.lede{margin:0;font-size:clamp(19px,2.2vw,21px);color:var(--muted);max-width:30em}
+.dark .lede{color:var(--muted-navy)}
+.head{gap:12px;margin-bottom:48px}
+.gt-d{background:linear-gradient(90deg,#1FE2FE 0%,#2A94FE 45%,#7A5CFF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.gt-l{background:var(--btn);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:980px;border:0;background:var(--btn);color:#fff;font:inherit;font-weight:500;white-space:nowrap;cursor:pointer}
+.btn:hover{text-decoration:none;filter:brightness(1.08)}
+.link-dk{color:#5CC8FF}
+
+/* Header */
+header{position:sticky;top:0;z-index:10;background:rgba(7,15,28,.78);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(255,255,255,.08)}
+header .wrap{padding:0 22px;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:inline-flex;align-items:center;min-height:44px}
+.logo img{height:26px;width:auto}
+header nav{display:flex;align-items:center;gap:22px;font-size:14px}
+header nav a:not(.btn){color:#D6DEEA}
+header .btn{min-height:40px;padding:0 18px;font-size:14px}
+@media (max-width:520px){header nav a:not(.btn){display:none}}
+
+/* Hero */
+.hero{padding:80px 22px 96px}
+.hero .wrap{gap:18px}
+.hero-mark{height:112px;width:auto;filter:drop-shadow(0 18px 48px rgba(42,148,254,.35))}
+.hero h1{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:clamp(44px,8.4vw,88px);line-height:1.05;letter-spacing:-0.015em;max-width:11em}
+.hero p{margin:0;font-size:clamp(19px,2.6vw,26px);line-height:1.3;color:var(--soft-navy);max-width:24em}
+.hero .ctas{margin-top:18px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:center}
+
+/* Demo */
+.demo{width:100%;max-width:680px;margin:0 auto;background:var(--grey);border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:22px}
+.demo-top{display:flex;align-items:center;gap:14px}
+.demo-icon{flex:0 0 48px;height:48px;border-radius:50%;background:var(--navy);display:inline-flex;align-items:center;justify-content:center}
+.demo-top strong{display:block;font-weight:600}
+.demo-top span{font-size:14px;color:var(--muted)}
+.chat{display:flex;flex-direction:column;gap:10px}
+.row{display:flex}
+.row.c{justify-content:flex-end}
+.bubble{max-width:80%;padding:10px 16px;border-radius:20px;font-size:16px;line-height:1.35}
+.r .bubble{background:#fff;border-bottom-left-radius:6px;transform-origin:bottom left}
+.c .bubble{background:var(--btn);color:#fff;border-bottom-right-radius:6px;transform-origin:bottom right}
+.summary{background:#fff;border-radius:18px;padding:18px 20px;font-size:15px;border:1px solid var(--line)}
+.summary b{display:block;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.summary dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.summary dt{color:var(--muted)}
+.summary dd{margin:0}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.card{background:#fff;border-radius:28px;padding:36px 32px;display:flex;flex-direction:column;gap:14px}
+.card h3{font-size:26px;line-height:1.15;letter-spacing:.005em}
+.card p{margin:0;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px;width:100%;margin-bottom:48px}
+.step{display:flex;flex-direction:column;gap:8px}
+.step .n{font-size:48px;font-weight:600;line-height:1;align-self:flex-start}
+.step h3{font-size:21px}
+.step p{margin:0;color:var(--muted)}
+.code{display:inline-block;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:14px;background:var(--grey);padding:2px 8px;border-radius:6px;color:var(--text)}
+
+/* Calculator */
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;width:100%;margin-bottom:48px}
+.calc label{display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted-navy)}
+.calc input{min-height:56px;border-radius:12px;border:1px solid var(--navy-input);background:var(--navy-card);color:#fff;font:inherit;font-size:21px;padding:0 16px;width:100%}
+.calc input:focus{outline:2px solid #2A94FE;outline-offset:1px}
+.loss{font-size:clamp(64px,13vw,128px);font-weight:600;line-height:1.05;letter-spacing:-0.02em}
+
+/* FAQ */
+.faq{max-width:780px;margin:0 auto;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;font-size:21px;font-weight:600;cursor:pointer}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';font-size:28px;font-weight:300;line-height:1;color:var(--accent)}
+.faq details[open] summary::after{content:'−'}
+.faq p{margin:0 0 24px;color:var(--muted);max-width:38em}
+
+/* Final CTA + footer */
+.final{padding:112px 22px}
+.final .wrap{gap:20px}
+.final h2{font-size:clamp(40px,7vw,72px);line-height:1.05;letter-spacing:-0.015em;max-width:12em}
+footer{background:var(--grey);border-top:1px solid var(--line);padding:24px 22px 32px;font-size:12px;line-height:1.4;color:var(--muted)}
+footer .wrap{display:flex;flex-direction:column;gap:16px}
+footer .bar{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+footer a{color:#424245}
+
+/* Motion */
+@media (prefers-reduced-motion:no-preference){
+  .fx .rv{opacity:0;transform:translate3d(0,28px,0);transition:opacity .9s cubic-bezier(.25,.1,.25,1),transform 1.2s cubic-bezier(.16,1,.3,1)}
+  .fx .rv-z{opacity:0;transform:scale(.94);transition:opacity 1s cubic-bezier(.25,.1,.25,1),transform 1.5s cubic-bezier(.16,1,.3,1)}
+  .fx .rg>*{opacity:0;transform:translate3d(0,28px,0);transition:opacity .9s cubic-bezier(.25,.1,.25,1),transform 1.2s cubic-bezier(.16,1,.3,1)}
+  .fx .chat .bubble{opacity:0;transform:translate3d(0,10px,0) scale(.9);transition:opacity .45s ease-out,transform .65s cubic-bezier(.34,1.25,.64,1)}
+  .fx .in.rv,.fx .in.rv-z,.fx .rg.in>*,.fx .chat.in .bubble{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="foner home"><img src="assets/foner-logo-horizontal.png" alt="foner" width="101" height="26"></a>
+    <nav aria-label="Page">
+      <a href="#hear">Hear it</a>
+      <a href="#how">How it works</a>
+      <a class="btn" href="#contact">Get early access</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero dark">
+  <div class="wrap center">
+    <img class="hero-mark rv-z" src="assets/foner-mark.png" alt="" width="130" height="112">
+    <span class="eb rv">Never miss a call</span>
+    <h1 class="rv">Every call. <span class="gt-d">Answered.</span></h1>
+    <p class="rv">Your AI receptionist for the calls you can’t take. It takes the details while you’re up a ladder, and you keep your number.</p>
+    <div class="ctas rv">
+      <a class="btn" href="#contact">Get early access</a>
+      <a class="link-dk" href="#hear">Hear how it works ›</a>
+    </div>
+  </div>
+</section>
+
+<section id="hear">
+  <div class="wrap">
+    <div class="center head rv">
+      <span class="eb">Listen</span>
+      <h2>Hear it for yourself.</h2>
+      <p class="lede">Natural, calm and to the point. Then the details land in your inbox.</p>
+    </div>
+    <div class="demo rv-z">
+      <div class="demo-top">
+        <span class="demo-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+        <div><strong>Roof cleaning enquiry</strong><span>Example conversation</span></div>
+      </div>
+      <div class="chat">
+        <div class="row r"><div class="bubble">Hi, you’ve reached Jake’s phone. He’s out on a job, I’m his assistant. How can I help?</div></div>
+        <div class="row c"><div class="bubble">Hi, I’d like a quote to get my roof cleaned. It’s gone green with moss.</div></div>
+        <div class="row r"><div class="bubble">No problem. What’s the house number and postcode?</div></div>
+        <div class="row c"><div class="bubble">It’s 14, CB8 7AB.</div></div>
+        <div class="row r"><div class="bubble">Thanks. And your name, please?</div></div>
+        <div class="row c"><div class="bubble">Sarah Collins.</div></div>
+        <div class="row r"><div class="bubble">Is the number you’re calling from the best one to reach you on?</div></div>
+        <div class="row c"><div class="bubble">Yes, that’s fine.</div></div>
+        <div class="row r"><div class="bubble">Lovely. I’ll pass this to Jake now and he’ll be in touch about your quote.</div></div>
+      </div>
+      <div class="summary">
+        <b>Sent to Jake straight away</b>
+        <dl>
+          <dt>Name</dt><dd>Sarah Collins</dd>
+          <dt>Address</dt><dd>14, CB8 7AB</dd>
+          <dt>Service</dt><dd>Roof cleaning, moss</dd>
+          <dt>Next step</dt><dd>Call back with a quote</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="grey">
+  <svg aria-hidden="true" width="0" height="0" style="position:absolute"><defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A9BF5"/><stop offset="1" stop-color="#5B3CF5"/></linearGradient></defs></svg>
+  <div class="wrap">
+    <div class="center head rv">
+      <span class="eb">Why foner</span>
+      <h2>Built for people on the tools.</h2>
+    </div>
+    <div class="cards rg">
+      <div class="card">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+        <h3>Missed calls become customers.</h3>
+        <p>Callers get a real conversation instead of voicemail, even when you’re mid-job.</p>
+      </div>
+      <div class="card">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>
+        <h3>Instant summaries.</h3>
+        <p>Who called, what they need and how to reach them. Sent the moment they hang up.</p>
+      </div>
+      <div class="card">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <h3>Open 24/7.</h3>
+        <p>Evenings, weekends and bank holidays. Always on.</p>
+      </div>
+      <div class="card">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
+        <h3>Keep your number.</h3>
+        <p>Your phone rings first. foner only picks up the calls you’d have missed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap center">
+    <div class="center head rv">
+      <span class="eb">How it works</span>
+      <h2>Set up in minutes.</h2>
+      <p class="lede">Three steps. No engineers. No new number.</p>
+    </div>
+    <div class="steps rg" style="text-align:left">
+      <div class="step"><span class="n gt-l">1</span><h3>Tell us about your business.</h3><p>Your services, the areas you cover and how you like to quote.</p></div>
+      <div class="step"><span class="n gt-l">2</span><h3>We set up your receptionist.</h3><p>Trained on your business, with its own number to forward to.</p></div>
+      <div class="step"><span class="n gt-l">3</span><h3>Switch on forwarding.</h3><p>Dial a short code like <span class="code">**61*</span> on your mobile. That’s it.</p></div>
+    </div>
+    <a class="btn rv" href="#contact">Get early access</a>
+  </div>
+</section>
+
+<section class="dark">
+  <div class="wrap center">
+    <div class="center head rv">
+      <span class="eb">Calculator</span>
+      <h2 style="max-width:14em">What are missed calls costing you?</h2>
+      <p class="lede">Enter your numbers. See the difference.</p>
+    </div>
+    <div class="calc rg" style="text-align:left">
+      <label>Missed calls per week<input id="calls" type="number" inputmode="decimal" min="0" value="10"></label>
+      <label>Average job value (£)<input id="value" type="number" inputmode="decimal" min="0" value="300"></label>
+      <label>Calls that become customers (%)<input id="conv" type="number" inputmode="decimal" min="0" max="100" value="25"></label>
+    </div>
+    <div class="center rv-z" style="gap:12px">
+      <span style="color:var(--muted-navy)">Estimated revenue lost each month<sup style="font-size:11px">1</sup></span>
+      <span class="loss gt-d" id="loss" aria-live="polite">£3,248</span>
+      <a class="btn" href="#contact" style="margin-top:12px">Stop missing calls</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center head rv">
+      <span class="eb">FAQs</span>
+      <h2>Questions? Answers.</h2>
+    </div>
+    <div class="faq rg">
+      <details open><summary>Can I keep my number?</summary><p>Yes. Your phone rings as normal. If you don’t answer, the call forwards to your foner number, so customers keep dialling the number they already know.</p></details>
+      <details><summary>Will callers know it’s AI?</summary><p>It introduces itself as your assistant, and if anyone asks whether it’s AI, it tells them.</p></details>
+      <details><summary>Does it give prices or book jobs?</summary><p>No. It never quotes prices or confirms bookings you haven’t agreed. It takes the caller’s details and what they need, so you can get back to them.</p></details>
+      <details><summary>How do I get the details?</summary><p>You get a summary by email straight after every call: name, number, address, the job and anything else they mentioned.</p></details>
+      <details><summary>Who is it for?</summary><p>UK trades and small service businesses: roofers, plumbers, electricians, cleaners and anyone who can’t always get to the phone.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final dark" id="contact">
+  <div class="wrap center">
+    <img class="rv-z" src="assets/foner-mark.png" alt="" width="84" height="72" style="height:72px;width:auto;filter:drop-shadow(0 14px 36px rgba(42,148,254,.3))">
+    <h2 class="rv">Never miss <span class="gt-d">another call.</span></h2>
+    <p class="lede rv">We’re setting up our first businesses now. Get in touch to be one of them.</p>
+    <a class="btn rv" href="mailto:foner.uk@gmail.com?subject=foner%20early%20access">Email foner.uk@gmail.com</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0">1. Estimate only. Calculated as missed calls per week × average job value × conversion rate × 4.33 weeks. Actual results vary.</p>
+    <div class="bar">
+      <span>Copyright © 2026 foner. All rights reserved.</span>
+      <a href="mailto:foner.uk@gmail.com">foner.uk@gmail.com</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var ids=['calls','value','conv'], out=document.getElementById('loss');
+  function num(id,max){var v=parseFloat(document.getElementById(id).value)||0;v=Math.max(0,v);return max?Math.min(max,v):v}
+  function calc(){out.textContent='£'+Math.round(num('calls')*num('value')*(num('conv',100)/100)*4.33).toLocaleString('en-GB')}
+  ids.forEach(function(id){document.getElementById(id).addEventListener('input',calc)});
+  calc();
+
+  try{
+    if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    document.documentElement.classList.add('fx');
+    document.querySelectorAll('.rg').forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.style.transitionDelay=(i*100)+'ms'})});
+    document.querySelectorAll('.chat .bubble').forEach(function(b,i){b.style.transitionDelay=(550+i*260)+'ms'});
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:0.12});
+    document.querySelectorAll('.rv,.rv-z,.rg,.chat').forEach(function(el){io.observe(el)});
+  }catch(err){document.documentElement.classList.remove('fx')}
+})();
+</script>
+</body>
+</html>
