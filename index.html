@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>foner · AI phone receptionist for trades</title>
-<meta name="description" content="foner answers the calls you miss, takes the caller's details and texts you a summary the moment they hang up. Built for UK trades and small businesses.">
+<title>foner · Try it free for a month</title>
+<meta name="description" content="foner answers the calls you miss, takes the caller's details and sends them to you straight away. Try it free for a month. Keep it only if it brings you work.">
 <meta name="theme-color" content="#070F1C">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta property="og:title" content="foner · Every call. Answered.">
-<meta property="og:description" content="An AI receptionist that answers the calls you miss and sends you the details straight away.">
+<meta property="og:description" content="Try foner free for a month. If it doesn't bring you work, you walk away.">
 <meta property="og:image" content="assets/foner-logo-horizontal.png">
 <style>
 :root{
@@ -40,6 +40,7 @@ h2{font-size:clamp(36px,6vw,56px);line-height:1.07;letter-spacing:-0.005em}
 .gt-l{background:var(--btn);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:980px;border:0;background:var(--btn);color:#fff;font:inherit;font-weight:500;white-space:nowrap;cursor:pointer}
 .btn:hover{text-decoration:none;filter:brightness(1.08)}
+.btn[disabled]{opacity:.6;cursor:default;filter:none}
 .link-dk{color:#5CC8FF}
 
 /* Header */
@@ -50,15 +51,58 @@ header .wrap{padding:0 22px;min-height:56px;display:flex;align-items:center;just
 header nav{display:flex;align-items:center;gap:22px;font-size:14px}
 header nav a:not(.btn){color:#D6DEEA}
 header .btn{min-height:40px;padding:0 18px;font-size:14px}
-@media (max-width:520px){header nav a:not(.btn){display:none}}
+@media (max-width:620px){header nav a:not(.btn){display:none}}
 
 /* Hero */
 .hero{padding:80px 22px 96px}
 .hero .wrap{gap:18px}
 .hero-mark{height:112px;width:auto;filter:drop-shadow(0 18px 48px rgba(42,148,254,.35))}
 .hero h1{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:clamp(44px,8.4vw,88px);line-height:1.05;letter-spacing:-0.015em;max-width:11em}
-.hero p{margin:0;font-size:clamp(19px,2.6vw,26px);line-height:1.3;color:var(--soft-navy);max-width:24em}
-.hero .ctas{margin-top:18px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:center}
+.hero p.sub{margin:0;font-size:clamp(19px,2.6vw,26px);line-height:1.3;color:var(--soft-navy);max-width:24em}
+
+/* Sign-up form */
+.signup{width:100%;max-width:560px;margin-top:22px}
+.signup .fields{display:flex;flex-wrap:wrap;gap:10px}
+.signup input{flex:1 1 200px;min-height:52px;border-radius:12px;border:1px solid var(--navy-input);background:var(--navy-card);color:#fff;font:inherit;padding:0 16px;width:100%}
+.signup input::placeholder{color:#7D8A9E}
+.signup input:focus{outline:2px solid #2A94FE;outline-offset:1px}
+.signup input[name=website]{flex-basis:100%}
+.signup .btn{flex:1 1 100%;min-height:52px;font-size:17px}
+.signup .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.signup .small{margin:12px 0 0;font-size:14px;color:var(--muted-navy)}
+.signup .msg{margin:12px 0 0;font-size:15px;min-height:0}
+.signup .msg.err{color:#FF9F8A}
+.done{display:none;width:100%;max-width:560px;margin-top:22px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;padding:24px;text-align:center}
+.done strong{display:block;font-size:21px;margin-bottom:6px}
+.done p{margin:0;color:var(--soft-navy)}
+.sent .signup{display:none}
+.sent .done{display:block}
+.ticks{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;font-size:15px;color:var(--soft-navy)}
+.ticks li{display:inline-flex;align-items:center;gap:8px}
+.ticks svg{flex:0 0 auto}
+
+/* Promise */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.card{background:#fff;border-radius:28px;padding:36px 32px;display:flex;flex-direction:column;gap:14px}
+.card h3{font-size:26px;line-height:1.15;letter-spacing:.005em}
+.card p{margin:0;color:var(--muted)}
+.grey-card{background:var(--grey)}
+.card .n{font-size:48px;font-weight:600;line-height:1}
+
+/* Evidence */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;width:100%}
+.stat{background:#fff;border-radius:28px;padding:36px 28px;display:flex;flex-direction:column;gap:10px;text-align:left}
+.stat .big{font-size:clamp(56px,8vw,72px);font-weight:600;line-height:1;letter-spacing:-0.02em}
+.stat p{margin:0;font-size:19px;line-height:1.35}
+.stat cite{font-style:normal;font-size:13px;color:var(--muted)}
+
+/* Story */
+.story{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.story p{margin:0;font-size:clamp(19px,2.2vw,21px);color:var(--soft-navy)}
+.story .count{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;padding:28px 0;border-top:1px solid var(--navy-border);border-bottom:1px solid var(--navy-border)}
+.story .count .big{font-size:clamp(80px,14vw,140px);font-weight:600;line-height:.95;letter-spacing:-0.03em}
+.story .count span:last-child{font-size:clamp(19px,2.4vw,24px);line-height:1.25;color:#fff;max-width:14em}
+.story .sig{color:#fff;font-weight:600}
 
 /* Demo */
 .demo{width:100%;max-width:680px;margin:0 auto;background:var(--grey);border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:22px}
@@ -78,11 +122,7 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .summary dt{color:var(--muted)}
 .summary dd{margin:0}
 
-/* Cards */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-.card{background:#fff;border-radius:28px;padding:36px 32px;display:flex;flex-direction:column;gap:14px}
-.card h3{font-size:26px;line-height:1.15;letter-spacing:.005em}
-.card p{margin:0;color:var(--muted)}
+/* Steps */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px;width:100%;margin-bottom:48px}
 .step{display:flex;flex-direction:column;gap:8px}
 .step .n{font-size:48px;font-weight:600;line-height:1;align-self:flex-start}
@@ -111,9 +151,12 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .final .wrap{gap:20px}
 .final h2{font-size:clamp(40px,7vw,72px);line-height:1.05;letter-spacing:-0.015em;max-width:12em}
 footer{background:var(--grey);border-top:1px solid var(--line);padding:24px 22px 32px;font-size:12px;line-height:1.4;color:var(--muted)}
-footer .wrap{display:flex;flex-direction:column;gap:16px}
-footer .bar{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+footer .wrap{display:flex;flex-direction:column;gap:10px}
+footer p{margin:0}
+footer .bar{border-top:1px solid var(--line);padding-top:16px;margin-top:6px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
 footer a{color:#424245}
+
+@media (max-width:520px){section{padding:72px 18px}.hero{padding:56px 18px 72px}.card,.stat{padding:28px 24px}}
 
 /* Motion */
 @media (prefers-reduced-motion:no-preference){
@@ -127,13 +170,16 @@ footer a{color:#424245}
 </head>
 <body>
 
+<svg aria-hidden="true" width="0" height="0" style="position:absolute"><defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A9BF5"/><stop offset="1" stop-color="#5B3CF5"/></linearGradient></defs></svg>
+
 <header>
   <div class="wrap">
     <a class="logo" href="#top" aria-label="foner home"><img src="assets/foner-logo-horizontal.png" alt="foner" width="101" height="26"></a>
     <nav aria-label="Page">
+      <a href="#deal">The free month</a>
       <a href="#hear">Hear it</a>
-      <a href="#how">How it works</a>
-      <a class="btn" href="#contact">Get early access</a>
+      <a href="#faq">FAQs</a>
+      <a class="btn" href="#join">Try it free</a>
     </nav>
   </div>
 </header>
@@ -143,12 +189,101 @@ footer a{color:#424245}
 <section class="hero dark">
   <div class="wrap center">
     <img class="hero-mark rv-z" src="assets/foner-mark.png" alt="" width="130" height="112">
-    <span class="eb rv">Never miss a call</span>
+    <span class="eb rv">One month free. No catch.</span>
     <h1 class="rv">Every call. <span class="gt-d">Answered.</span></h1>
-    <p class="rv">Your AI receptionist for the calls you can’t take. It takes the details while you’re up a ladder, and you keep your number.</p>
-    <div class="ctas rv">
-      <a class="btn" href="#contact">Get early access</a>
-      <a class="link-dk" href="#hear">Hear how it works ›</a>
+    <p class="sub rv">foner picks up the calls you can’t, takes the details and sends them straight to you. Try it free for a month. If it doesn’t bring you work, you walk away.</p>
+
+    <div class="form-wrap rv" style="width:100%;display:flex;flex-direction:column;align-items:center">
+      <form class="signup" data-source="hero" novalidate>
+        <div class="fields">
+          <label class="hp" aria-hidden="true">Leave this empty<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label>
+          <input type="text" name="name" placeholder="Your name" autocomplete="name" aria-label="Your name" required>
+          <input type="email" name="email" placeholder="Business email" autocomplete="email" inputmode="email" aria-label="Business email" required>
+          <input type="url" name="website" placeholder="Business website (if you have one)" autocomplete="url" inputmode="url" aria-label="Business website, optional">
+          <button class="btn" type="submit">Start my free month</button>
+        </div>
+        <p class="msg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="done" tabindex="-1">
+        <strong>You’re on the list.</strong>
+        <p>I’ll be in touch personally to set things up. Thanks for giving it a go.</p>
+      </div>
+      <ul class="ticks">
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1FE2FE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>No card needed</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1FE2FE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>No contract</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1FE2FE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Keep your number</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="deal">
+  <div class="wrap">
+    <div class="center head rv">
+      <span class="eb">The free month</span>
+      <h2>Prove it first. Pay later.<br>Or don’t.</h2>
+      <p class="lede">You shouldn’t pay for something until it’s paid for itself. So here’s the deal.</p>
+    </div>
+    <div class="cards rg">
+      <div class="card grey-card">
+        <span class="n gt-l">1</span>
+        <h3>I set it up for you.</h3>
+        <p>Tell me about your business and I’ll build your receptionist by hand. It learns your services, your area and how you like callers handled.</p>
+      </div>
+      <div class="card grey-card">
+        <span class="n gt-l">2</span>
+        <h3>It answers for a month.</h3>
+        <p>Every call you can’t get to is picked up, and you get the caller’s details the moment they hang up. Free, for 30 days.</p>
+      </div>
+      <div class="card grey-card">
+        <span class="n gt-l">3</span>
+        <h3>You decide.</h3>
+        <p>At the end, we look at what it caught together. If it won you work, carry on. If it didn’t, I switch it off and you owe nothing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="grey">
+  <div class="wrap center">
+    <div class="center head rv">
+      <span class="eb">Why it matters</span>
+      <h2 style="max-width:14em">A missed call rarely rings twice.</h2>
+      <p class="lede">Most callers don’t leave a message. They ring the next name on the list.</p>
+    </div>
+    <div class="stats rg">
+      <div class="stat">
+        <span class="big gt-l">37%</span>
+        <p>of UK adults would hang up and contact a competitor within a minute.</p>
+        <cite>YouGov for Answer4u, June 2026, 2,046 UK adults</cite>
+      </div>
+      <div class="stat">
+        <span class="big gt-l">6%</span>
+        <p>would leave a voicemail. The rest move on, or try email or chat instead.</p>
+        <cite>YouGov for Answer4u, June 2026, 2,046 UK adults</cite>
+      </div>
+      <div class="stat">
+        <span class="big gt-l">69%</span>
+        <p>of Britons wouldn’t answer a call from an unknown number, so calling back later often goes nowhere.</p>
+        <cite>YouGov, May 2025, 6,315 GB adults</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark">
+  <div class="wrap">
+    <div class="story">
+      <span class="eb rv">Why I built it</span>
+      <h2 class="rv" style="max-width:14em">I was missing calls too.</h2>
+      <p class="rv">I run The Roof &amp; Render Cleaning Company: roofs, render, gutters and driveways around Newmarket, Cambridge and Bury St Edmunds. Just me. And the phone always seems to ring when I’m on a roof.</p>
+      <div class="count rv">
+        <span class="big gt-d">47</span>
+        <span>calls from new numbers went unanswered between April and October 2026.</span>
+      </div>
+      <p class="rv">Not all of them were jobs. Some will have been spam. But even a handful of real enquiries is work that went to someone else. So I built foner, and now it answers my phone when I can’t.</p>
+      <p class="rv">Before I offer it to anyone else, I want to know it makes money for people like you. That’s what the free month is for.</p>
+      <p class="sig rv">Jake Austin, founder</p>
     </div>
   </div>
 </section>
@@ -157,8 +292,8 @@ footer a{color:#424245}
   <div class="wrap">
     <div class="center head rv">
       <span class="eb">Listen</span>
-      <h2>Hear it for yourself.</h2>
-      <p class="lede">Natural, calm and to the point. Then the details land in your inbox.</p>
+      <h2>What your callers hear.</h2>
+      <p class="lede">Friendly, calm and to the point. It says it’s your assistant, never pretends to be you, and gets you the details fast.</p>
     </div>
     <div class="demo rv-z">
       <div class="demo-top">
@@ -189,51 +324,19 @@ footer a{color:#424245}
   </div>
 </section>
 
-<section class="grey">
-  <svg aria-hidden="true" width="0" height="0" style="position:absolute"><defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A9BF5"/><stop offset="1" stop-color="#5B3CF5"/></linearGradient></defs></svg>
-  <div class="wrap">
-    <div class="center head rv">
-      <span class="eb">Why foner</span>
-      <h2>Built for people on the tools.</h2>
-    </div>
-    <div class="cards rg">
-      <div class="card">
-        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
-        <h3>Missed calls become customers.</h3>
-        <p>Callers get a real conversation instead of voicemail, even when you’re mid-job.</p>
-      </div>
-      <div class="card">
-        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>
-        <h3>Instant summaries.</h3>
-        <p>Who called, what they need and how to reach them. Sent the moment they hang up.</p>
-      </div>
-      <div class="card">
-        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-        <h3>Open 24/7.</h3>
-        <p>Evenings, weekends and bank holidays. Always on.</p>
-      </div>
-      <div class="card">
-        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
-        <h3>Keep your number.</h3>
-        <p>Your phone rings first. foner only picks up the calls you’d have missed.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="how">
+<section class="grey" id="how">
   <div class="wrap center">
     <div class="center head rv">
       <span class="eb">How it works</span>
-      <h2>Set up in minutes.</h2>
-      <p class="lede">Three steps. No engineers. No new number.</p>
+      <h2>Your phone rings first.</h2>
+      <p class="lede">foner only picks up the calls you’d have missed. Nothing changes for your customers, except they get an answer.</p>
     </div>
     <div class="steps rg" style="text-align:left">
-      <div class="step"><span class="n gt-l">1</span><h3>Tell us about your business.</h3><p>Your services, the areas you cover and how you like to quote.</p></div>
-      <div class="step"><span class="n gt-l">2</span><h3>We set up your receptionist.</h3><p>Trained on your business, with its own number to forward to.</p></div>
-      <div class="step"><span class="n gt-l">3</span><h3>Switch on forwarding.</h3><p>Dial a short code like <span class="code">**61*</span> on your mobile. That’s it.</p></div>
+      <div class="step"><span class="n gt-l">1</span><h3>A customer rings you.</h3><p>Same number they’ve always used. Answer as normal if you can.</p></div>
+      <div class="step"><span class="n gt-l">2</span><h3>You can’t get to it.</h3><p>The call forwards to foner. One short code like <span class="code">**61*</span> on your mobile sets it up.</p></div>
+      <div class="step"><span class="n gt-l">3</span><h3>You get the details.</h3><p>Name, number, address and what they need, in your inbox the moment they hang up.</p></div>
     </div>
-    <a class="btn rv" href="#contact">Get early access</a>
+    <a class="btn rv" href="#join">Start my free month</a>
   </div>
 </section>
 
@@ -242,43 +345,60 @@ footer a{color:#424245}
     <div class="center head rv">
       <span class="eb">Calculator</span>
       <h2 style="max-width:14em">What are missed calls costing you?</h2>
-      <p class="lede">Enter your numbers. See the difference.</p>
+      <p class="lede">Put in your own numbers. The free month will show you the real ones.</p>
     </div>
     <div class="calc rg" style="text-align:left">
-      <label>Missed calls per week<input id="calls" type="number" inputmode="decimal" min="0" value="10"></label>
+      <label>Missed calls per week<input id="calls" type="number" inputmode="decimal" min="0" value="5"></label>
       <label>Average job value (£)<input id="value" type="number" inputmode="decimal" min="0" value="300"></label>
       <label>Calls that become customers (%)<input id="conv" type="number" inputmode="decimal" min="0" max="100" value="25"></label>
     </div>
     <div class="center rv-z" style="gap:12px">
-      <span style="color:var(--muted-navy)">Estimated revenue lost each month<sup style="font-size:11px">1</sup></span>
-      <span class="loss gt-d" id="loss" aria-live="polite">£3,248</span>
-      <a class="btn" href="#contact" style="margin-top:12px">Stop missing calls</a>
+      <span style="color:var(--muted-navy)">Estimated work lost each month<sup style="font-size:11px">1</sup></span>
+      <span class="loss gt-d" id="loss" aria-live="polite">£1,624</span>
+      <a class="btn" href="#join" style="margin-top:12px">Find out for free</a>
     </div>
   </div>
 </section>
 
-<section>
+<section id="faq">
   <div class="wrap">
     <div class="center head rv">
       <span class="eb">FAQs</span>
       <h2>Questions? Answers.</h2>
     </div>
     <div class="faq rg">
-      <details open><summary>Can I keep my number?</summary><p>Yes. Your phone rings as normal. If you don’t answer, the call forwards to your foner number, so customers keep dialling the number they already know.</p></details>
+      <details open><summary>Is the month really free?</summary><p>Yes. No card details, no contract and nothing to cancel. If foner hasn’t brought you work by the end of the month, I switch it off and that’s it.</p></details>
+      <details><summary>What happens after the free month?</summary><p>We look at the calls it caught together. If it’s paying for itself, we agree a simple monthly price before anything is charged. If not, you walk away.</p></details>
+      <details><summary>Can I keep my number?</summary><p>Yes. Your phone rings as normal. If you don’t answer, the call forwards to your foner number, so customers keep dialling the number they already know. Turning it off is one short code.</p></details>
       <details><summary>Will callers know it’s AI?</summary><p>It introduces itself as your assistant, and if anyone asks whether it’s AI, it tells them.</p></details>
       <details><summary>Does it give prices or book jobs?</summary><p>No. It never quotes prices or confirms bookings you haven’t agreed. It takes the caller’s details and what they need, so you can get back to them.</p></details>
-      <details><summary>How do I get the details?</summary><p>You get a summary by email straight after every call: name, number, address, the job and anything else they mentioned.</p></details>
       <details><summary>Who is it for?</summary><p>UK trades and small service businesses: roofers, plumbers, electricians, cleaners and anyone who can’t always get to the phone.</p></details>
     </div>
   </div>
 </section>
 
-<section class="final dark" id="contact">
+<section class="final dark" id="join">
   <div class="wrap center">
     <img class="rv-z" src="assets/foner-mark.png" alt="" width="84" height="72" style="height:72px;width:auto;filter:drop-shadow(0 14px 36px rgba(42,148,254,.3))">
-    <h2 class="rv">Never miss <span class="gt-d">another call.</span></h2>
-    <p class="lede rv">We’re setting up our first businesses now. Get in touch to be one of them.</p>
-    <a class="btn rv" href="mailto:foner.uk@gmail.com?subject=foner%20early%20access">Email foner.uk@gmail.com</a>
+    <h2 class="rv">A month on us. <span class="gt-d">See what it catches.</span></h2>
+    <p class="lede rv">I’m setting up the first businesses myself. Leave your details and I’ll be in touch.</p>
+    <div class="form-wrap rv" style="width:100%;display:flex;flex-direction:column;align-items:center">
+      <form class="signup" data-source="footer" novalidate>
+        <div class="fields">
+          <label class="hp" aria-hidden="true">Leave this empty<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label>
+          <input type="text" name="name" placeholder="Your name" autocomplete="name" aria-label="Your name" required>
+          <input type="email" name="email" placeholder="Business email" autocomplete="email" inputmode="email" aria-label="Business email" required>
+          <input type="url" name="website" placeholder="Business website (if you have one)" autocomplete="url" inputmode="url" aria-label="Business website, optional">
+          <button class="btn" type="submit">Start my free month</button>
+        </div>
+        <p class="small">No website? No problem, leave it blank. I’ll only use your details to set up your trial.</p>
+        <p class="msg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="done" tabindex="-1">
+        <strong>You’re on the list.</strong>
+        <p>I’ll be in touch personally to set things up. Thanks for giving it a go.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -286,7 +406,8 @@ footer a{color:#424245}
 
 <footer>
   <div class="wrap">
-    <p style="margin:0">1. Estimate only. Calculated as missed calls per week × average job value × conversion rate × 4.33 weeks. Actual results vary.</p>
+    <p>1. Estimate only. Calculated as missed calls per week × average job value × conversion rate × 4.33 weeks. Actual results vary.</p>
+    <p>Statistics: YouGov for Answer4u, “How long will customers wait on the phone?”, June 2026. YouGov daily question on unknown numbers, May 2025.</p>
     <div class="bar">
       <span>Copyright © 2026 foner. All rights reserved.</span>
       <a href="mailto:foner.uk@gmail.com">foner.uk@gmail.com</a>
@@ -301,6 +422,33 @@ footer a{color:#424245}
   function calc(){out.textContent='£'+Math.round(num('calls')*num('value')*(num('conv',100)/100)*4.33).toLocaleString('en-GB')}
   ids.forEach(function(id){document.getElementById(id).addEventListener('input',calc)});
   calc();
+
+  // Sign-up: posts to FormSubmit, which emails each entry to foner.uk@gmail.com
+  var ENDPOINT='https://formsubmit.co/ajax/foner.uk@gmail.com';
+  document.querySelectorAll('form.signup').forEach(function(f){
+    f.addEventListener('submit',function(e){
+      e.preventDefault();
+      var msg=f.querySelector('.msg'), btn=f.querySelector('button');
+      var name=f.elements.namedItem("name").value.trim(), email=f.elements.namedItem("email").value.trim(), website=f.elements.namedItem("website").value.trim();
+      msg.className='msg';msg.textContent='';
+      if(f.elements.namedItem("_honey").value)return;
+      if(!name){msg.className='msg err';msg.textContent='Please add your name.';f.elements.namedItem("name").focus();return}
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.className='msg err';msg.textContent='Please check your business email address.';f.elements.namedItem("email").focus();return}
+      btn.disabled=true;btn.textContent='Sending…';
+      fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({name:name,email:email,website:website||'None given',source:f.dataset.source,_subject:'New foner free month sign-up: '+name,_template:'table',_captcha:'false'})})
+        .then(function(r){return r.json().then(function(d){if(!r.ok||d.success===false||d.success==='false')throw new Error(d.message||'failed')})})
+        .then(function(){
+          document.querySelectorAll('.form-wrap').forEach(function(w){w.classList.add('sent')});
+          f.parentNode.querySelector('.done').focus();
+        })
+        .catch(function(){
+          btn.disabled=false;btn.textContent='Start my free month';
+          msg.className='msg err';
+          msg.innerHTML='Something went wrong. Please email <a class="link-dk" href="mailto:foner.uk@gmail.com?subject=foner%20free%20month">foner.uk@gmail.com</a> instead.';
+        });
+    });
+  });
 
   try{
     if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
