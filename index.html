@@ -148,6 +148,28 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .chip svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .sys.ok .chip{background:#EAF8EE;color:#1F7A3A}
 .sys.ok .chip svg{stroke:#30C25A}
+/* App showcase */
+.appshow{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:56px;align-items:center;max-width:920px;margin:0 auto}
+.feats{display:flex;flex-direction:column;gap:6px}
+.feat{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:20px;padding:18px 22px;color:inherit;font:inherit;cursor:pointer;transition:background .25s ease}
+.feat strong{display:block;font-size:21px;font-weight:600;line-height:1.2;color:var(--muted-navy);transition:color .25s ease}
+.feat span{display:block;margin-top:6px;font-size:16px;line-height:1.4;color:var(--muted-navy)}
+.feat:hover strong{color:#fff}
+.feat[aria-selected=true]{background:var(--navy-card)}
+.feat[aria-selected=true] strong{color:#fff}
+.feat:focus-visible{outline:2px solid #2A94FE;outline-offset:2px}
+.phone{position:relative;justify-self:center;width:300px;padding:10px;border-radius:48px;background:#1B2436;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 50px 90px -30px rgba(0,0,0,.85),0 0 120px -20px rgba(42,148,254,.35)}
+.phone .scr{position:relative;width:100%;aspect-ratio:390/844;border-radius:38px;overflow:hidden;background:#fff}
+.phone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s ease}
+.phone img.on{opacity:1}
+.app-note{margin:28px 0 0;text-align:center;font-size:13px;color:var(--muted-navy)}
+@media (max-width:820px){
+  .appshow{grid-template-columns:1fr;gap:32px}
+  .phone{order:-1;width:260px}
+  .feat{padding:14px 18px}
+  .feat strong{font-size:19px}
+}
+@media (prefers-reduced-motion:reduce){.phone img,.feat,.feat strong{transition:none}}
 @media (max-width:520px){
   .demo-tabs{width:100%}
   .dtab{flex:1;padding:0 8px;font-size:14px}
@@ -212,6 +234,7 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
     <nav aria-label="Page">
       <a href="#deal">The free month</a>
       <a href="#hear">Hear it</a>
+      <a href="#app">The app</a>
       <a href="#faq">FAQs</a>
       <a class="btn" href="#join">Try it free</a>
     </nav>
@@ -437,6 +460,35 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
   </div>
 </section>
 
+<section class="dark" id="app">
+  <div class="wrap">
+    <div class="center head rv">
+      <span class="eb">The foner app</span>
+      <h2 style="max-width:13em">Every call lands <span class="gt-d">in your pocket.</span></h2>
+      <p class="lede">Who to ring back, what they need, and every enquiry tracked through to a paid job. All in one simple app on your phone.</p>
+    </div>
+    <div class="appshow rv-z">
+      <div class="feats" role="tablist" aria-orientation="vertical" aria-label="App features">
+        <button class="feat" role="tab" id="feat-home" aria-controls="app-screen" aria-selected="true" data-shot="home"><strong>Who to ring back</strong><span>Every caller you missed, with one tap to call or WhatsApp them back.</span></button>
+        <button class="feat" role="tab" id="feat-call" aria-controls="app-screen" aria-selected="false" tabindex="-1" data-shot="call"><strong>Every call, summarised</strong><span>Name, number, address and what they need, plus the recording and full transcript.</span></button>
+        <button class="feat" role="tab" id="feat-jobs" aria-controls="app-screen" aria-selected="false" tabindex="-1" data-shot="jobs"><strong>From enquiry to paid job</strong><span>Each enquiry becomes a job. Move it from quote to won to done, and add leads from WhatsApp or Facebook too.</span></button>
+        <button class="feat" role="tab" id="feat-calendar" aria-controls="app-screen" aria-selected="false" tabindex="-1" data-shot="calendar"><strong>Your diary, sorted</strong><span>Quote visits, jobs and call-backs in one calendar that syncs to your iPhone or Google calendar.</span></button>
+        <button class="feat" role="tab" id="feat-money" aria-controls="app-screen" aria-selected="false" tabindex="-1" data-shot="money"><strong>See what foner made you</strong><span>Quoted, won and your return on foner, worked out for you every month.</span></button>
+      </div>
+      <div class="phone" role="tabpanel" id="app-screen" aria-labelledby="feat-home">
+        <div class="scr">
+          <img class="on" data-shot="home" src="assets/app/app-home.webp" alt="foner app home screen: three people to get back to, each with call and WhatsApp buttons" width="600" height="1298">
+          <img data-shot="call" src="assets/app/app-call.webp" alt="A call in the foner app: caller details, call and WhatsApp buttons, and the linked job" width="600" height="1298" loading="lazy">
+          <img data-shot="jobs" src="assets/app/app-jobs.webp" alt="Jobs list in the foner app, showing each job's stage and quote value" width="600" height="1298" loading="lazy">
+          <img data-shot="calendar" src="assets/app/app-calendar.webp" alt="foner calendar showing today's job, a call back and a quote visit" width="600" height="1298" loading="lazy">
+          <img data-shot="money" src="assets/app/app-money.webp" alt="What foner made you: money won from calls foner answered this month" width="600" height="1298" loading="lazy">
+        </div>
+      </div>
+    </div>
+    <p class="app-note rv">Screens show an example business.</p>
+  </div>
+</section>
+
 <section class="grey" id="how">
   <div class="wrap center">
     <div class="center head rv">
@@ -599,6 +651,31 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
       t.addEventListener('keydown',function(e){
         var j={ArrowRight:i+1,ArrowLeft:i-1,Home:0,End:tabs.length-1}[e.key];
         if(j===undefined)return;e.preventDefault();select(tabs[(j+tabs.length)%tabs.length],true);
+      });
+    });
+  })();
+
+  // App showcase: pick a feature, show its screen
+  (function(){
+    var feats=[].slice.call(document.querySelectorAll('#app .feat'));
+    var panel=document.getElementById('app-screen');
+    if(!feats.length||!panel)return;
+    var shots=[].slice.call(panel.querySelectorAll('img'));
+    function pick(f,focus){
+      feats.forEach(function(x){var on=x===f;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1});
+      shots.forEach(function(s){s.classList.toggle('on',s.dataset.shot===f.dataset.shot)});
+      panel.setAttribute('aria-labelledby',f.id);
+      if(focus)f.focus();
+    }
+    feats.forEach(function(f,i){
+      f.addEventListener('click',function(){
+        pick(f);
+        var r=panel.getBoundingClientRect();
+        if(innerWidth<=820&&(r.top<56||r.bottom>innerHeight))panel.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      });
+      f.addEventListener('keydown',function(e){
+        var j={ArrowDown:i+1,ArrowRight:i+1,ArrowUp:i-1,ArrowLeft:i-1,Home:0,End:feats.length-1}[e.key];
+        if(j===undefined)return;e.preventDefault();pick(feats[(j+feats.length)%feats.length],true);
       });
     });
   })();
