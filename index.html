@@ -126,6 +126,34 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .summary dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
 .summary dt{color:var(--muted)}
 .summary dd{margin:0}
+.demo-tabs{display:flex;gap:4px;margin:0 auto 20px;padding:4px;width:max-content;max-width:100%;background:var(--grey);border-radius:980px;overflow-x:auto}
+.dtab{min-height:44px;padding:0 20px;border:0;border-radius:980px;background:transparent;font:inherit;font-size:15px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+.dtab[aria-selected=true]{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.dtab:focus-visible,.play:focus-visible,.seek:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.demo[hidden]{display:none}
+.demo-meta{flex:1;min-width:0}
+.play{flex:0 0 52px;height:52px;border:0;border-radius:50%;background:var(--btn);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 20px -8px rgba(26,100,232,.7)}
+.play svg{width:22px;height:22px;fill:#fff}
+.play .i-pause,.play.on .i-play{display:none}
+.play.on .i-pause{display:block}
+.track{display:flex;align-items:center;gap:12px;margin-top:-6px}
+.seek{flex:1;min-width:0;accent-color:#1A64E8;cursor:pointer}
+.time{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.demo .row{transition:opacity .3s ease}
+.demo.active .row{opacity:.32}
+.demo.active .row.said{opacity:1}
+.row:not(.sys) .bubble{cursor:pointer}
+.row.sys{justify-content:center}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:980px;background:#fff;font-size:13px;font-weight:600;color:var(--muted);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.chip svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sys.ok .chip{background:#EAF8EE;color:#1F7A3A}
+.sys.ok .chip svg{stroke:#30C25A}
+@media (max-width:520px){
+  .demo-tabs{width:100%}
+  .dtab{flex:1;padding:0 8px;font-size:14px}
+  .demo{padding:20px 16px;border-radius:24px}
+  .bubble{max-width:86%}
+}
 
 /* Steps */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px;width:100%;margin-bottom:48px}
@@ -301,29 +329,108 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
       <h2>What your callers hear.</h2>
       <p class="lede">Friendly, calm and to the point. It says it’s your assistant, never pretends to be you, and gets you the details fast.</p>
     </div>
-    <div class="demo rv-z">
+    <div class="demo-tabs rv" role="tablist" aria-label="Example calls">
+      <button class="dtab" role="tab" id="tab-roof" aria-controls="panel-roof" aria-selected="true" tabindex="0">Roof cleaning</button>
+      <button class="dtab" role="tab" id="tab-plumbing" aria-controls="panel-plumbing" aria-selected="false" tabindex="-1">Plumbing</button>
+      <button class="dtab" role="tab" id="tab-lash" aria-controls="panel-lash" aria-selected="false" tabindex="-1">Lash &amp; brow</button>
+    </div>
+    <div class="demo rv-z" role="tabpanel" id="panel-roof" aria-labelledby="tab-roof">
       <div class="demo-top">
         <span class="demo-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
-        <div><strong>Roof cleaning enquiry</strong><span>Example conversation</span></div>
+        <div class="demo-meta"><strong>Roof cleaning enquiry</strong><span>Example call · 0:58</span></div>
+        <button class="play" type="button" aria-label="Play the roof cleaning call"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
       </div>
+      <div class="track"><input class="seek" type="range" min="0" max="58" step="0.1" value="0" aria-label="Call position"><span class="time">0:00 / 0:58</span></div>
+      <audio preload="none" src="assets/audio/roof-cleaning-call.mp3"></audio>
       <div class="chat">
-        <div class="row r"><div class="bubble">Hi, you’ve reached Jake’s phone. He’s out on a job, I’m his assistant. How can I help?</div></div>
-        <div class="row c"><div class="bubble">Hi, I’d like a quote to get my roof cleaned. It’s gone green with moss.</div></div>
-        <div class="row r"><div class="bubble">No problem. What’s the house number and postcode?</div></div>
-        <div class="row c"><div class="bubble">It’s 14, CB8 7AB.</div></div>
-        <div class="row r"><div class="bubble">Thanks. And your name, please?</div></div>
-        <div class="row c"><div class="bubble">Sarah Collins.</div></div>
-        <div class="row r"><div class="bubble">Is the number you’re calling from the best one to reach you on?</div></div>
-        <div class="row c"><div class="bubble">Yes, that’s fine.</div></div>
-        <div class="row r"><div class="bubble">Lovely. I’ll pass this to Jake now and he’ll be in touch about your quote.</div></div>
+        <div class="row r" data-t="0.0"><div class="bubble">You’ve reached the Roof and Render Cleaning Company. This is Alex, our AI assistant. How can we help?</div></div>
+        <div class="row c" data-t="5.77"><div class="bubble">Hi, I was wondering if I could get a quote for roof cleaning?</div></div>
+        <div class="row r" data-t="9.18"><div class="bubble">Sure, I can help with that. To get started, could you tell me the property address, including the postcode?</div></div>
+        <div class="row c" data-t="15.19"><div class="bubble">Yes, it’s 187 Maine Street, Thetford IP24 3PG.</div></div>
+        <div class="row r" data-t="21.76"><div class="bubble">Thanks, and can I get your full name?</div></div>
+        <div class="row c" data-t="24.12"><div class="bubble">John Smith.</div></div>
+        <div class="row r" data-t="25.12"><div class="bubble">Thanks John, and is this the best number to reach you on?</div></div>
+        <div class="row c" data-t="28.4"><div class="bubble">Yes.</div></div>
+        <div class="row r" data-t="29.02"><div class="bubble">Got it, thank you. To get you that quote, the quickest way is for you to send us a few photos of the roof by WhatsApp to this number, or by email. Alternatively, we can come out and take a look in person. Which of those would you prefer?</div></div>
+        <div class="row c" data-t="42.81"><div class="bubble">I can send pictures.</div></div>
+        <div class="row r" data-t="44.05"><div class="bubble">Great. We will look at the photos and be in touch with a quote as soon as we can. Is there anything else I can help you with today?</div></div>
+        <div class="row c" data-t="50.79"><div class="bubble">Nope, that’s everything, thank you.</div></div>
+        <div class="row r" data-t="52.67"><div class="bubble">Thank you so much for calling the Roof and Render Cleaning Company. Have a wonderful day, and goodbye.</div></div>
       </div>
       <div class="summary">
-        <b>Sent to Jake straight away</b>
+        <b>Sent to the business straight away</b>
         <dl>
-          <dt>Name</dt><dd>Sarah Collins</dd>
-          <dt>Address</dt><dd>14, CB8 7AB</dd>
-          <dt>Service</dt><dd>Roof cleaning, moss</dd>
-          <dt>Next step</dt><dd>Call back with a quote</dd>
+          <dt>Name</dt><dd>John Smith</dd>
+          <dt>Address</dt><dd>187 Maine Street, Thetford IP24 3PG</dd>
+          <dt>Service</dt><dd>Roof cleaning quote</dd>
+          <dt>Next step</dt><dd>Customer is sending roof photos by WhatsApp</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="demo rv-z" role="tabpanel" id="panel-plumbing" aria-labelledby="tab-plumbing" hidden>
+      <div class="demo-top">
+        <span class="demo-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+        <div class="demo-meta"><strong>Urgent plumbing call</strong><span>Example call · 0:46</span></div>
+        <button class="play" type="button" aria-label="Play the plumbing call"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
+      </div>
+      <div class="track"><input class="seek" type="range" min="0" max="46" step="0.1" value="0" aria-label="Call position"><span class="time">0:00 / 0:46</span></div>
+      <audio preload="none" src="assets/audio/plumbing-call.mp3"></audio>
+      <div class="chat">
+        <div class="row r" data-t="0.0"><div class="bubble">Hi, you’ve reached Millbrook Plumbing and Heating. This is Sophie, the AI assistant. How can I help?</div></div>
+        <div class="row c" data-t="6.69"><div class="bubble">Hiya, I’ve got water leaking under my kitchen sink, and it’s getting worse.</div></div>
+        <div class="row r" data-t="11.68"><div class="bubble">Sorry to hear that. If you can, turn the water off at the stopcock. It’s usually under the sink. Can I take your address?</div></div>
+        <div class="row c" data-t="20.14"><div class="bubble">Yeah, it’s 22 Orchard Close, Ely.</div></div>
+        <div class="row r" data-t="23.93"><div class="bubble">Thanks. And what’s your name?</div></div>
+        <div class="row c" data-t="26.54"><div class="bubble">Mark Collins.</div></div>
+        <div class="row r" data-t="28.15"><div class="bubble">Thanks Mark. Is this the best number to call you back on?</div></div>
+        <div class="row c" data-t="31.95"><div class="bubble">Yep, that’s the one.</div></div>
+        <div class="row r" data-t="33.84"><div class="bubble">Perfect. I’ve marked this as urgent and sent your details straight to the plumber. They’ll call you back very shortly.</div></div>
+        <div class="row c" data-t="40.88"><div class="bubble">Brilliant, thanks so much.</div></div>
+        <div class="row r" data-t="43.2"><div class="bubble">You’re welcome, Mark. Take care, bye.</div></div>
+      </div>
+      <div class="summary">
+        <b>Flagged urgent and sent straight away</b>
+        <dl>
+          <dt>Name</dt><dd>Mark Collins</dd>
+          <dt>Address</dt><dd>22 Orchard Close, Ely</dd>
+          <dt>Problem</dt><dd>Leak under the kitchen sink, getting worse</dd>
+          <dt>Next step</dt><dd>Urgent call back</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="demo rv-z" role="tabpanel" id="panel-lash" aria-labelledby="tab-lash" hidden>
+      <div class="demo-top">
+        <span class="demo-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+        <div class="demo-meta"><strong>New client booking</strong><span>Example call · 0:57</span></div>
+        <button class="play" type="button" aria-label="Play the lash and brow call"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
+      </div>
+      <div class="track"><input class="seek" type="range" min="0" max="57" step="0.1" value="0" aria-label="Call position"><span class="time">0:00 / 0:57</span></div>
+      <audio preload="none" src="assets/audio/lash-brow-call.mp3"></audio>
+      <div class="chat">
+        <div class="row r" data-t="0.0"><div class="bubble">Hi, you’re through to Bloom Lash and Brow Studio. I’m Ella, the AI assistant. How can I help?</div></div>
+        <div class="row c" data-t="6.63"><div class="bubble">Hi! I’d love to book a lash lift for Saturday if you’ve got anything? It’s my first time with you.</div></div>
+        <div class="row r" data-t="12.54"><div class="bubble">Lovely. As it’s your first visit, you’ll need a quick patch test at least 48 hours before. Let me check the calendar.</div></div>
+        <div class="row sys " data-t="20.15"><span class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Checking Anna’s calendar…</span></div>
+        <div class="row r" data-t="21.65"><div class="bubble">Anna can do your patch test on Wednesday at four, then your lash lift on Saturday at ten. Would that work?</div></div>
+        <div class="row c" data-t="28.71"><div class="bubble">Perfect, that works.</div></div>
+        <div class="row r" data-t="30.82"><div class="bubble">Can I take your name, please?</div></div>
+        <div class="row c" data-t="32.87"><div class="bubble">It’s Chloe Harris.</div></div>
+        <div class="row r" data-t="34.67"><div class="bubble">Thanks, Chloe. And what’s the best email for your confirmation?</div></div>
+        <div class="row c" data-t="39.25"><div class="bubble">It’s chloe.harris@gmail.com</div></div>
+        <div class="row r" data-t="42.76"><div class="bubble">Perfect. Your patch test is booked for Wednesday at four, and your lash lift with Anna on Saturday at ten. You’ll get a confirmation email shortly.</div></div>
+        <div class="row sys ok" data-t="45.95"><span class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Patch test · Wed 4pm</span></div>
+        <div class="row sys ok" data-t="49.15"><span class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Lash lift · Sat 10am with Anna</span></div>
+        <div class="row sys " data-t="51.5"><span class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6.5L20.5 7"/></svg>Confirmation email sent</span></div>
+        <div class="row c" data-t="51.96"><div class="bubble">Amazing, thank you!</div></div>
+        <div class="row r" data-t="54.19"><div class="bubble">You’re welcome, Chloe. See you on Wednesday!</div></div>
+      </div>
+      <div class="summary">
+        <b>Booked into the calendar</b>
+        <dl>
+          <dt>Client</dt><dd>Chloe Harris (new)</dd>
+          <dt>Patch test</dt><dd>Wednesday, 4pm</dd>
+          <dt>Appointment</dt><dd>Lash lift, Saturday 10am with Anna</dd>
+          <dt>Confirmation</dt><dd>Emailed to the client</dd>
         </dl>
       </div>
     </div>
@@ -377,8 +484,8 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
       <details><summary>What happens after the free month?</summary><p>We look at the calls it caught together. If it’s paying for itself, we agree a simple monthly price before anything is charged. If not, you walk away.</p></details>
       <details><summary>Can I keep my number?</summary><p>Yes. Your phone rings as normal. If you don’t answer, the call forwards to your foner number, so customers keep dialling the number they already know. Turning it off is one short code.</p></details>
       <details><summary>Will callers know it’s AI?</summary><p>It introduces itself as your assistant, and if anyone asks whether it’s AI, it tells them.</p></details>
-      <details><summary>Does it give prices or book jobs?</summary><p>No. It never quotes prices or confirms bookings you haven’t agreed. It takes the caller’s details and what they need, so you can get back to them.</p></details>
-      <details><summary>Who is it for?</summary><p>UK trades and small service businesses: roofers, plumbers, electricians, cleaners and anyone who can’t always get to the phone.</p></details>
+      <details><summary>Does it give prices or book jobs?</summary><p>It never quotes prices. As standard, it takes the caller’s details and what they need, so you can get back to them. If you’d like it to book appointments straight into your calendar, like the lash and brow example above, I can set that up for you.</p></details>
+      <details><summary>Who is it for?</summary><p>UK trades and small service businesses: roofers, plumbers, electricians, cleaners, salons and anyone who can’t always get to the phone.</p></details>
     </div>
   </div>
 </section>
@@ -459,11 +566,48 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
     });
   });
 
+  // Example calls: tabs + audio player with the transcript following along
+  (function(){
+    var tabs=[].slice.call(document.querySelectorAll('#hear .dtab'));
+    var panels=[].slice.call(document.querySelectorAll('#hear .demo'));
+    if(!tabs.length)return;
+    function fmt(s){s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+('0'+s%60).slice(-2)}
+    function stopAll(except){panels.forEach(function(p){var a=p.querySelector('audio');if(a!==except&&!a.paused)a.pause()})}
+    panels.forEach(function(p){
+      var a=p.querySelector('audio'),btn=p.querySelector('.play'),seek=p.querySelector('.seek'),time=p.querySelector('.time');
+      var rows=[].slice.call(p.querySelectorAll('.row')),total=parseFloat(seek.max);
+      function paint(){
+        var t=a.currentTime;seek.value=t;time.textContent=fmt(t)+' / '+fmt(total);
+        rows.forEach(function(r){r.classList.toggle('said',parseFloat(r.dataset.t)<=t+0.05)});
+      }
+      btn.addEventListener('click',function(){if(a.paused){stopAll(a);a.play()}else a.pause()});
+      a.addEventListener('play',function(){btn.classList.add('on');p.classList.add('active');btn.setAttribute('aria-label',btn.getAttribute('aria-label').replace('Play','Pause'))});
+      a.addEventListener('pause',function(){btn.classList.remove('on');btn.setAttribute('aria-label',btn.getAttribute('aria-label').replace('Pause','Play'))});
+      a.addEventListener('ended',function(){p.classList.remove('active')});
+      a.addEventListener('loadedmetadata',function(){if(isFinite(a.duration)){total=a.duration;seek.max=total;paint()}});
+      a.addEventListener('timeupdate',paint);
+      seek.addEventListener('input',function(){a.currentTime=parseFloat(seek.value);p.classList.add('active');paint()});
+      rows.forEach(function(r){if(r.classList.contains('sys'))return;r.addEventListener('click',function(){stopAll(a);a.currentTime=parseFloat(r.dataset.t);a.play()})});
+    });
+    function select(tab,focus){
+      tabs.forEach(function(t){var on=t===tab;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1});
+      panels.forEach(function(p){var on=p.id===tab.getAttribute('aria-controls');p.hidden=!on;if(on){p.classList.add('in');var c=p.querySelector('.chat');if(c)c.classList.add('in')}});
+      stopAll(null);if(focus)tab.focus();
+    }
+    tabs.forEach(function(t,i){
+      t.addEventListener('click',function(){select(t)});
+      t.addEventListener('keydown',function(e){
+        var j={ArrowRight:i+1,ArrowLeft:i-1,Home:0,End:tabs.length-1}[e.key];
+        if(j===undefined)return;e.preventDefault();select(tabs[(j+tabs.length)%tabs.length],true);
+      });
+    });
+  })();
+
   try{
     if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     document.documentElement.classList.add('fx');
     document.querySelectorAll('.rg').forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.style.transitionDelay=(i*100)+'ms'})});
-    document.querySelectorAll('.chat .bubble').forEach(function(b,i){b.style.transitionDelay=(550+i*260)+'ms'});
+    document.querySelectorAll('.chat').forEach(function(c){c.querySelectorAll('.bubble').forEach(function(b,i){b.style.transitionDelay=(450+i*160)+'ms'})});
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:0.12});
     document.querySelectorAll('.rv,.rv-z,.rg,.chat').forEach(function(el){io.observe(el)});
   }catch(err){document.documentElement.classList.remove('fx')}
