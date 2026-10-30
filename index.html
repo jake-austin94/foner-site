@@ -583,6 +583,7 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
   </div>
 </footer>
 
+<script src="assets/track.js"></script>
 <script>
 (function(){
   var ids=['calls','value','conv'], out=document.getElementById('loss');
@@ -603,8 +604,12 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
       if(!name){msg.className='msg err';msg.textContent='Please add your name.';f.elements.namedItem("name").focus();return}
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.className='msg err';msg.textContent='Please check your business email address.';f.elements.namedItem("email").focus();return}
       btn.disabled=true;btn.textContent='Sending…';
+      var T=window.fonerTrack;
+      if(T)T.lead({name:name,email:email,website:website,source:f.dataset.source});
+      var payload={name:name,email:email,website:website||'None given',source:f.dataset.source,_subject:'New foner free month sign-up: '+name,_template:'table',_captcha:'false'};
+      if(T){var ad=T.emailFields();for(var k in ad)payload[k]=ad[k]}
       fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify({name:name,email:email,website:website||'None given',source:f.dataset.source,_subject:'New foner free month sign-up: '+name,_template:'table',_captcha:'false'})})
+        body:JSON.stringify(payload)})
         .then(function(r){return r.json().then(function(d){if(!r.ok||d.success===false||d.success==='false')throw new Error(d.message||'failed')})})
         .then(function(){
           document.querySelectorAll('.form-wrap').forEach(function(w){w.classList.add('sent')});
