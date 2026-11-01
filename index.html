@@ -110,6 +110,14 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .story .count .big{font-size:clamp(80px,14vw,140px);font-weight:600;line-height:.95;letter-spacing:-0.03em}
 .story .count span:last-child{font-size:clamp(19px,2.4vw,24px);line-height:1.25;color:#fff;max-width:14em}
 .story .sig{color:#fff;font-weight:600}
+.case-logo{width:min(320px,72vw);height:auto;margin:4px 0 8px}
+.story .label{margin-top:10px;font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-navy)}
+.story .count{padding:20px 0 28px}
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.results>div{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:10px}
+.results .big{font-size:clamp(40px,6vw,56px);font-weight:600;line-height:1;letter-spacing:-0.02em;color:#fff}
+.results span:last-child{font-size:17px;line-height:1.35;color:var(--soft-navy)}
+@media (max-width:620px){.results{grid-template-columns:1fr}}
 
 /* Demo */
 .demo{width:100%;max-width:680px;margin:0 auto;background:var(--grey);border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:22px}
@@ -331,19 +339,25 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
   </div>
 </section>
 
-<section class="dark">
+<section class="dark" id="case">
   <div class="wrap">
     <div class="story">
-      <span class="eb rv">Why I built it</span>
-      <h2 class="rv" style="max-width:14em">I was missing calls too.</h2>
-      <p class="rv">I run The Roof &amp; Render Cleaning Company: roofs, render, gutters and driveways around Newmarket, Cambridge and Bury St Edmunds. Just me. And the phone always seems to ring when I’m on a roof.</p>
+      <span class="eb rv">Case study</span>
+      <img class="case-logo rv" src="assets/case/roof-and-render-logo-white.png" alt="The Roof &amp; Render Cleaning Company" width="320" height="151" loading="lazy">
+      <h2 class="rv" style="max-width:14em">3 calls answered.<br><span class="gt-d">3 jobs won.</span></h2>
+      <p class="rv">The Roof &amp; Render Cleaning Company cleans roofs, render, gutters and driveways around Newmarket, Cambridge and Bury St Edmunds. The phone tends to ring while they’re up on a roof.</p>
+      <span class="label rv">Before foner</span>
       <div class="count rv">
         <span class="big gt-d">47</span>
         <span>calls from new numbers went unanswered between April and October 2026.</span>
       </div>
-      <p class="rv">Not all of them were jobs. Some will have been spam. But even a handful of real enquiries is work that went to someone else. So I built foner, and now it answers my phone when I can’t.</p>
-      <p class="rv">Before I offer it to anyone else, I want to know it makes money for people like you. That’s what the free month is for.</p>
-      <p class="sig rv">Jake Austin, founder</p>
+      <span class="label rv">First two weeks with foner</span>
+      <div class="results rg">
+        <div><span class="big">3</span><span>calls answered that would have been missed</span></div>
+        <div><span class="big">3</span><span>jobs won from those calls</span></div>
+        <div><span class="big gt-d">£4,335</span><span>of work won</span></div>
+      </div>
+      <p class="rv">foner took each caller’s details and asked whether they’d rather send photos or have someone visit to quote. All three enquiries turned into jobs.</p>
     </div>
   </div>
 </section>
