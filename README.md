@@ -50,3 +50,11 @@ Example:
 - **Report:** the `ad_performance` view gives spend, funnel counts and cost per visitor, lead, booked call, trial and customer for each ad.
 - **Meta Pixel:** set `META_PIXEL_ID` at the top of `track.js`. The Pixel only loads after the visitor accepts the cookie banner, which appears once an ID is set.
 - **Per-ad demo numbers:** fill in `DEMO_NUMBERS` and add `data-demo-number` to any phone link or number on the page.
+
+## Website scanner (`/scan/`)
+
+`foner.uk/scan/` lets a visitor enter their website, name and email. The `scan-site` Supabase edge function (source in `supabase/functions/scan-site/`) reads up to 10 pages of the site, has Gemini fill in a foner business profile, screens every value (prices, offers, links, phone numbers, promises and instruction-like text are removed) and saves it to the `website_scans` table. The visitor sees what their receptionist would know, then taps **Start my free month**. That saves the lead to `site_leads`, marks `trial_requested_at` on the scan and emails foner.uk@gmail.com via FormSubmit.
+
+- **Secret needed:** `GEMINI_API_KEY` in Supabase → Edge Functions → Secrets. Optional `GEMINI_MODEL` (default `gemini-3.5-flash-lite`).
+- **Limits:** 5 scans per visitor IP per day, 3 per website per day, 200 in total per day. A site scanned in the last 24 hours reuses that scan for free.
+- **Viewing scans:** `website_scans` is admin-only (RLS). `profile` matches the trades-quote template's profile shape; `removed` lists anything the screening dropped; `kb_text` is cleaned material for the knowledge base.

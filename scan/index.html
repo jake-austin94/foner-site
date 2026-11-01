@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>foner · See your receptionist in 30 seconds</title>
+<meta name="description" content="Enter your website and see what your foner receptionist will know about your business. Then try it free for a month.">
+<meta name="theme-color" content="#070F1C">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<meta property="og:title" content="foner · See your receptionist in 30 seconds">
+<meta property="og:description" content="Enter your website. We'll show you what your receptionist will know.">
+<meta property="og:image" content="https://foner.uk/assets/og-image.png">
+<meta property="og:url" content="https://foner.uk/scan/">
+<!--
+  One job: show a trade owner what their receptionist would know, from their own website.
+  Primary action: Start my free month (after the scan).
+  Reading order: headline -> website field -> result card -> start button.
+-->
+<style>
+:root{
+  --navy:#070F1C;--navy-card:#0E1A2D;--navy-border:#1E2B42;--navy-input:#26344D;
+  --muted-navy:#9AA6B8;--soft-navy:#C3CCDA;--cyan:#1FE2FE;
+  --accent:#1A64E8;--text:#1D1D1F;--muted:#6E6E73;--grey:#F5F5F7;--line:#D2D2D7;
+  --btn:linear-gradient(135deg,#1A64E8 0%,#5B3CF5 100%);
+  --ok:#0A7D45;--warn:#9A5B00;
+  --ease:cubic-bezier(.25,.1,.25,1);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--navy);color:#fff;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Inter,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:17px;line-height:1.47;letter-spacing:-0.022em;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:#5CC8FF;text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto}
+h1,h2,h3{margin:0;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border-radius:980px;border:0;background:var(--btn);color:#fff;font:inherit;font-weight:500;cursor:pointer;width:100%}
+.btn:hover{filter:brightness(1.08);text-decoration:none}
+.btn[disabled]{opacity:.6;cursor:default;filter:none}
+:focus-visible{outline:2px solid #2A94FE;outline-offset:2px}
+.gt-d{background:linear-gradient(90deg,#1FE2FE 0%,#2A94FE 45%,#7A5CFF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+
+header{position:sticky;top:0;z-index:10;background:rgba(7,15,28,.78);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(255,255,255,.08)}
+header .wrap{padding:0 22px;min-height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:inline-flex;align-items:center;min-height:44px}
+.logo img{height:26px;width:auto}
+header nav a{color:#D6DEEA;font-size:14px}
+
+main{padding:64px 22px 96px}
+.panel{max-width:560px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+.eb{font-size:13px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan)}
+h1{font-size:clamp(40px,7vw,64px);line-height:1.06;letter-spacing:-0.015em}
+.sub{margin:0;font-size:clamp(19px,2.4vw,21px);line-height:1.38;color:var(--soft-navy)}
+
+form{width:100%;margin-top:16px;display:flex;flex-direction:column;gap:12px;text-align:left}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--soft-navy)}
+input{min-height:52px;border-radius:12px;border:1px solid var(--navy-input);background:var(--navy-card);color:#fff;font:inherit;padding:0 16px;width:100%}
+input::placeholder{color:#7D8A9E}
+input:focus{outline:2px solid #2A94FE;outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.small{margin:0;font-size:14px;color:var(--muted-navy);text-align:center}
+.msg{margin:0;font-size:15px}
+.msg.err{color:#FF9F8A}
+
+/* Working state */
+.steps{list-style:none;margin:24px 0 0;padding:0;width:100%;display:flex;flex-direction:column;gap:12px;text-align:left}
+.steps li{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:16px;background:var(--navy-card);border:1px solid var(--navy-border);color:var(--muted-navy);transition:color .3s var(--ease),border-color .3s var(--ease)}
+.steps li .dot{flex:0 0 20px;height:20px;border-radius:50%;border:2px solid var(--navy-input);display:grid;place-items:center}
+.steps li.on{color:#fff;border-color:#2A4A7A}
+.steps li.on .dot{border-color:#2A94FE;border-top-color:transparent;animation:spin .9s linear infinite}
+.steps li.done{color:var(--soft-navy)}
+.steps li.done .dot{border-color:var(--cyan);background:var(--cyan);animation:none}
+.steps li.done .dot::after{content:"";width:8px;height:5px;border-left:2px solid var(--navy);border-bottom:2px solid var(--navy);transform:rotate(-45deg) translate(1px,-1px)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Result card */
+.card{width:100%;margin-top:24px;background:#fff;color:var(--text);border-radius:24px;padding:32px 24px;text-align:left;display:flex;flex-direction:column;gap:24px}
+.card h2{font-size:24px;line-height:1.2;letter-spacing:-0.01em}
+.greet{margin:0;padding:16px 20px;border-radius:16px;background:var(--grey);font-size:17px;color:var(--text)}
+.greet span{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.facts{margin:0;display:grid;gap:16px}
+.facts div{display:grid;gap:4px}
+.facts dt{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{padding:6px 12px;border-radius:980px;background:var(--grey);font-size:15px}
+.missing{margin:0;padding:16px 20px;border-radius:16px;background:#FFF6E5;color:#5C3A00;font-size:15px}
+.missing strong{display:block;margin-bottom:2px}
+.card .small{color:var(--muted)}
+.card .msg.err{color:#B3261E}
+.card .msg.err a{color:var(--accent)}
+.card .btn{margin-top:8px}
+
+.done-box{width:100%;margin-top:24px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:24px;padding:32px 24px}
+.done-box strong{display:block;font-size:24px;margin-bottom:8px}
+.done-box p{margin:0;color:var(--soft-navy)}
+
+[hidden]{display:none!important}
+.fade{animation:fade .4s var(--ease) both}
+@keyframes fade{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+footer{padding:32px 22px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:var(--muted-navy)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="../" aria-label="foner home"><img src="../assets/foner-logo-horizontal.png" alt="foner" width="134" height="26"></a>
+    <nav><a href="../#how">How it works</a></nav>
+  </div>
+</header>
+
+<main>
+  <!-- 1. Ask -->
+  <section class="panel" id="ask">
+    <span class="eb">Free · 30 seconds</span>
+    <h1>See your receptionist <span class="gt-d">before you start.</span></h1>
+    <p class="sub">Enter your website. We’ll read it and show you what your receptionist will already know about your business.</p>
+
+    <form id="scan-form" novalidate>
+      <label class="hp" aria-hidden="true">Leave this empty<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label>
+      <label class="f">Your website
+        <input type="text" name="website" placeholder="yourbusiness.co.uk" autocomplete="url" inputmode="url" autocapitalize="off" spellcheck="false" required>
+      </label>
+      <div class="row">
+        <label class="f">Your name
+          <input type="text" name="name" placeholder="First and last name" autocomplete="name" required>
+        </label>
+        <label class="f">Business email
+          <input type="email" name="email" placeholder="you@yourbusiness.co.uk" autocomplete="email" inputmode="email" required>
+        </label>
+      </div>
+      <button class="btn" type="submit">Build my receptionist</button>
+      <p class="msg" role="status" aria-live="polite"></p>
+      <p class="small">No card. We’ll only use your details to set up your trial.</p>
+    </form>
+  </section>
+
+  <!-- 2. Working -->
+  <section class="panel" id="working" hidden aria-live="polite">
+    <span class="eb">Building</span>
+    <h1>Reading your website…</h1>
+    <p class="sub">This usually takes 20 to 40 seconds.</p>
+    <ol class="steps">
+      <li><span class="dot" aria-hidden="true"></span>Opening your website</li>
+      <li><span class="dot" aria-hidden="true"></span>Finding your services</li>
+      <li><span class="dot" aria-hidden="true"></span>Working out the areas you cover</li>
+      <li><span class="dot" aria-hidden="true"></span>Setting up your receptionist</li>
+    </ol>
+  </section>
+
+  <!-- 3. Result -->
+  <section class="panel" id="result" hidden>
+    <span class="eb">Your receptionist</span>
+    <h1 id="r-title">Here’s what it knows.</h1>
+    <div class="card fade">
+      <p class="greet"><span>How it answers</span><em id="r-greet"></em></p>
+      <dl class="facts">
+        <div id="r-owner-row"><dt>Answers calls for</dt><dd id="r-owner"></dd></div>
+        <div id="r-town-row"><dt>Based in</dt><dd id="r-town"></dd></div>
+        <div id="r-services-row"><dt>Services it can talk about</dt><dd class="chips" id="r-services"></dd></div>
+        <div id="r-areas-row"><dt>Areas you cover</dt><dd class="chips" id="r-areas"></dd></div>
+      </dl>
+      <p class="missing" id="r-missing" hidden><strong>We’ll check a few things with you</strong><span id="r-missing-list"></span></p>
+      <p class="small" style="text-align:left">It never gives prices or books jobs. It takes the caller’s details and sends them straight to you.</p>
+      <button class="btn" id="start" type="button">Start my free month</button>
+      <p class="msg" id="start-msg" role="status" aria-live="polite"></p>
+      <p class="small">Something not quite right? We’ll fix it when we set you up.</p>
+    </div>
+  </section>
+
+  <!-- 3b. Couldn't scan -->
+  <section class="panel" id="fallback" hidden>
+    <span class="eb">No problem</span>
+    <h1>We’ll set it up by hand.</h1>
+    <p class="sub" id="fb-reason">We couldn’t read your website automatically.</p>
+    <div class="done-box fade" style="text-align:center">
+      <p style="margin-bottom:16px">Start your free month and we’ll build your receptionist for you, usually within a day.</p>
+      <button class="btn" id="start-fb" type="button">Start my free month</button>
+      <p class="msg" id="start-fb-msg" role="status" aria-live="polite" style="margin-top:12px"></p>
+    </div>
+  </section>
+
+  <!-- 4. Done -->
+  <section class="panel" id="done" hidden tabindex="-1">
+    <span class="eb">You’re in</span>
+    <h1>We’ll take it <span class="gt-d">from here.</span></h1>
+    <div class="done-box fade">
+      <strong>Your free month has started.</strong>
+      <p>We’ll build your receptionist and be in touch within a day to get it answering your calls. No card, no contract.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © 2026 foner. All rights reserved.</span>
+    <a href="mailto:foner.uk@gmail.com">foner.uk@gmail.com</a>
+  </div>
+</footer>
+
+<script src="../assets/track.js"></script>
+<script>
+(function(){
+  var SCAN_URL='https://lkfriflskqyvwaknzbet.supabase.co/functions/v1/scan-site';
+  var SUPABASE_KEY='sb_publishable_5U5tHfl4OZwQdv63cVDTAg_ttYhhtdJ';
+  var EMAIL_ENDPOINT='https://formsubmit.co/ajax/foner.uk@gmail.com';
+  var $=function(id){return document.getElementById(id)};
+  var state={name:'',email:'',website:'',scan:null};
+
+  function show(id){['ask','working','result','fallback','done'].forEach(function(s){$(s).hidden=(s!==id)});window.scrollTo({top:0});}
+  function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function utm(){try{return JSON.parse(lsGet('foner_attr')||'null')}catch(e){return null}}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function chips(el,items){el.innerHTML=items.map(function(i){return '<span>'+esc(i)+'</span>'}).join('')}
+  function list(a){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]}
+
+  // Progress steps advance on a timer while the scan runs, then all tick on finish.
+  var timer;
+  function startSteps(){
+    var li=[].slice.call(document.querySelectorAll('.steps li')),i=0;
+    li.forEach(function(l){l.className=''});
+    li[0].className='on';
+    timer=setInterval(function(){
+      if(i<li.length-1){li[i].className='done';i++;li[i].className='on'}
+    },7000);
+  }
+  function finishSteps(){clearInterval(timer);document.querySelectorAll('.steps li').forEach(function(l){l.className='done'})}
+
+  $('scan-form').addEventListener('submit',function(e){
+    e.preventDefault();
+    var f=e.target,msg=f.querySelector('.msg'),btn=f.querySelector('button');
+    if(f.elements._honey.value)return;
+    state.website=f.elements.website.value.trim();
+    state.name=f.elements.name.value.trim();
+    state.email=f.elements.email.value.trim();
+    msg.className='msg';msg.textContent='';
+    if(!/^(https?:\/\/)?[^\s\/]+\.[^\s]{2,}/i.test(state.website)){msg.className='msg err';msg.textContent='Please add your website, for example yourbusiness.co.uk';f.elements.website.focus();return}
+    if(!state.name){msg.className='msg err';msg.textContent='Please add your name.';f.elements.name.focus();return}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)){msg.className='msg err';msg.textContent='Please check your business email address.';f.elements.email.focus();return}
+    btn.disabled=true;
+    show('working');startSteps();
+    fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+      body:JSON.stringify({action:'scan',name:state.name,email:state.email,website:state.website,visitor_id:lsGet('foner_vid'),utm:utm()})})
+      .then(function(r){return r.json().catch(function(){return {}}).then(function(d){d._http=r.status;return d})})
+      .then(function(d){
+        finishSteps();btn.disabled=false;
+        if(d._http===400&&d.error){show('ask');msg.className='msg err';msg.textContent=d.error;return}
+        state.scan=d;
+        if(d.status==='ready'||d.status==='needs_review'){renderResult(d);show('result')}
+        else{$('fb-reason').textContent=d.error||'We couldn’t read your website automatically.';show('fallback')}
+      })
+      .catch(function(){finishSteps();btn.disabled=false;state.scan=null;$('fb-reason').textContent='We couldn’t reach your website just now.';show('fallback')});
+  });
+
+  function renderResult(d){
+    var x=d.display||{};
+    var name=x.business_name||'your business';
+    $('r-title').textContent=name;
+    $('r-greet').textContent='“Calls are recorded for training purposes. You’ve reached '+name+'. This is Alex, our AI assistant. How can we help?”';
+    $('r-owner').textContent=x.owner_name||'';$('r-owner-row').hidden=!x.owner_name;
+    $('r-town').textContent=x.base_town||'';$('r-town-row').hidden=!x.base_town;
+    chips($('r-services'),x.services||[]);$('r-services-row').hidden=!(x.services||[]).length;
+    chips($('r-areas'),x.areas||[]);$('r-areas-row').hidden=!(x.areas||[]).length;
+    var miss=(d.missing||[]).filter(function(m){return m!=='problem examples'&&m!=='services you don’t offer'&&m!=="services you don't offer"});
+    $('r-missing').hidden=!miss.length;
+    $('r-missing-list').textContent=miss.length?'Such as your '+list(miss)+'.':'';
+  }
+
+  function startTrial(btn,msgEl){
+    btn.disabled=true;btn.textContent='Starting…';msgEl.className='msg';msgEl.textContent='';
+    var d=state.scan||{},x=d.display||{};
+    var T=window.fonerTrack;
+    if(T)T.lead({name:state.name,email:state.email,website:state.website,source:'scanner'});
+    if(d.scan_id){fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action:'trial',scan_id:d.scan_id,email:state.email})}).catch(function(){})}
+    var payload={name:state.name,email:state.email,website:state.website,source:'scanner',
+      scan_status:d.status||'not scanned',scan_id:d.scan_id||'none',
+      business_found:x.business_name||'-',services_found:(x.services||[]).join(', ')||'-',areas_found:(x.areas||[]).join(', ')||'-',
+      still_to_check:(d.missing||[]).join(', ')||'-',
+      _subject:'New foner free month sign-up (scanner): '+state.name,_template:'table',_captcha:'false'};
+    if(T){var ad=T.emailFields();for(var k in ad)payload[k]=ad[k]}
+    fetch(EMAIL_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){return r.json().then(function(j){if(!r.ok||j.success===false||j.success==='false')throw new Error('failed')})})
+      .then(function(){show('done');$('done').focus()})
+      .catch(function(){
+        btn.disabled=false;btn.textContent='Start my free month';
+        msgEl.className='msg err';
+        msgEl.innerHTML='Something went wrong. Please email <a href="mailto:foner.uk@gmail.com?subject=foner%20free%20month">foner.uk@gmail.com</a> instead.';
+      });
+  }
+  $('start').addEventListener('click',function(){startTrial(this,$('start-msg'))});
+  $('start-fb').addEventListener('click',function(){startTrial(this,$('start-fb-msg'))});
+})();
+</script>
+</body>
+</html>
