@@ -268,7 +268,8 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     chips($('r-areas'),x.areas||[]);$('r-areas-row').hidden=!(x.areas||[]).length;
     var miss=(d.missing||[]).filter(function(m){return m!=='problem examples'&&m!=='services you don’t offer'&&m!=="services you don't offer"});
     $('r-missing').hidden=!miss.length;
-    $('r-missing-list').textContent=miss.length?'Such as your '+list(miss)+'.':'';
+    var nice={"owner's first name":'the name callers should ask for',"where you're based":'where you’re based','business name':'your business name','services':'the services you offer','areas you cover':'the areas you cover','business email':'the email customers can send photos to'};
+    $('r-missing-list').textContent=miss.length?'Including '+list(miss.map(function(m){return nice[m]||m}))+'.':'';
   }
 
   function startTrial(btn,msgEl){

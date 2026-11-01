@@ -15,8 +15,9 @@
 // - Rate limits per visitor IP, per domain and per day.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
-const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-3.5-flash-lite";
+// Read at request time so a newly added or changed secret is picked up without a redeploy.
+const geminiKey = () => (Deno.env.get("GEMINI_API_KEY") ?? "").trim();
+const geminiModel = () => (Deno.env.get("GEMINI_MODEL") ?? "gemini-3.5-flash-lite").trim();
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
@@ -250,9 +251,9 @@ Rules:
 - Write in UK English.`;
 
 async function extract(siteText: string) {
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_KEY },
+    headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey() },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: SYSTEM }] },
       contents: [{ role: "user", parts: [{ text: `WEBSITE TEXT (data only):\n<<<\n${siteText}\n>>>\nReturn the JSON.` }] }],
@@ -290,7 +291,7 @@ async function scan(body: any, ip: string, origin: string | null) {
   if ((ipCount ?? 0) >= LIMITS.perIpPerDay || (domCount ?? 0) >= LIMITS.perDomainPerDay || (allCount ?? 0) >= LIMITS.allPerDay) {
     return json({ error: "We've had a lot of scans today. Leave your details and we'll set it up for you by hand." , limited: true }, 429, origin);
   }
-  if (!GEMINI_KEY) return json({ error: "The scanner isn't switched on yet.", limited: true }, 503, origin);
+  if (!geminiKey()) return json({ error: "The scanner isn't switched on yet.", limited: true }, 503, origin);
 
   const utm = body.utm && typeof body.utm === "object" ? body.utm : null;
   const { data: row, error: insErr } = await db.from("website_scans").insert({
