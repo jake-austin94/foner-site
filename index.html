@@ -206,6 +206,27 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .calc input:focus{outline:2px solid #2A94FE;outline-offset:1px}
 .loss{font-size:clamp(64px,13vw,128px);font-weight:600;line-height:1.05;letter-spacing:-0.02em}
 
+/* Pricing */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:860px;margin:0 auto}
+.plan{position:relative;background:#fff;border-radius:28px;padding:36px 32px;display:flex;flex-direction:column;gap:12px;border:2px solid transparent}
+.plan.best{border-color:transparent;background:linear-gradient(#fff,#fff) padding-box,var(--btn) border-box}
+.plan h3{font-size:21px;letter-spacing:-0.01em}
+.plan .badge{position:absolute;top:-14px;left:32px;padding:4px 12px;border-radius:980px;background:var(--btn);color:#fff;font-size:13px;font-weight:600;letter-spacing:.02em}
+.plan .price{margin:0;display:flex;align-items:baseline;gap:6px}
+.plan .amt{font-size:clamp(48px,7vw,64px);font-weight:600;line-height:1;letter-spacing:-0.03em}
+.plan .per{font-size:19px;color:var(--muted)}
+.plan .after{margin:0;color:var(--muted);font-size:15px;min-height:2.9em}
+.incl{list-style:none;margin:12px 0 16px;padding:16px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px;font-size:16px}
+.incl li{display:flex;gap:10px;align-items:flex-start;line-height:1.35}
+.incl svg{flex:0 0 18px;margin-top:1px}
+.plan .btn{margin-top:auto}
+.promise{max-width:860px;margin:20px auto 0;background:#fff;border-radius:28px;padding:32px;display:flex;gap:20px;align-items:flex-start}
+.promise svg{flex:0 0 40px}
+.promise h3{font-size:21px;margin-bottom:8px}
+.promise p{margin:0 0 6px;color:var(--muted)}
+.promise strong{color:var(--text);font-weight:600}
+@media (max-width:520px){.plan,.promise{padding:28px 24px}.promise{flex-direction:column;gap:12px}}
+
 /* FAQ */
 .faq{max-width:780px;margin:0 auto;border-top:1px solid var(--line)}
 .faq details{border-bottom:1px solid var(--line)}
@@ -249,6 +270,7 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
       <a href="#deal">The free month</a>
       <a href="#hear">Hear it</a>
       <a href="#app">The app</a>
+      <a href="#pricing">Pricing</a>
       <a href="#faq">FAQs</a>
       <a class="btn" href="#join">Try it free</a>
     </nav>
@@ -551,6 +573,54 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
   </div>
 </section>
 
+<section class="grey" id="pricing">
+  <div class="wrap">
+    <div class="center head rv">
+      <span class="eb">Pricing</span>
+      <h2>Free for a month.<br>Then £49 a month.</h2>
+      <p class="lede">One plan with everything included. Win one extra £600 job and foner has paid for itself for a year.</p>
+    </div>
+    <div class="plans rg">
+      <div class="plan">
+        <h3>Monthly</h3>
+        <p class="price"><span class="amt">£49</span><span class="per">/month</span></p>
+        <p class="after">After your free month. No contract, cancel any time.</p>
+        <ul class="incl">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>First month free, no card needed</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Set up for you, trained on your business</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Answers every call you miss, day or night</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>60 minutes of calls a month (around 20 to 30 callers)</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Caller’s details sent to you the moment they hang up</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>The foner app: call-backs, recordings, transcripts, jobs and your diary</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Changes to your receptionist whenever you ask</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Keep your own number</span></li>
+        </ul>
+        <a class="btn" href="#join">Start my free month</a>
+      </div>
+      <div class="plan best">
+        <span class="badge">2 months free</span>
+        <h3>Annual</h3>
+        <p class="price"><span class="amt">£490</span><span class="per">/year</span></p>
+        <p class="after">Pay for 10 months, get 12. Works out at about £41 a month.</p>
+        <ul class="incl">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Everything in Monthly</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>2 months free, £98 saved</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>One payment a year, nothing to remember</span></li>
+        </ul>
+        <a class="btn" href="#join">Start my free month</a>
+      </div>
+    </div>
+    <div class="promise rv">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
+      <div>
+        <h3>Our guarantee</h3>
+        <p><strong>In your free month:</strong> if foner doesn’t bring you at least £100 of new work, walk away and pay nothing.</p>
+        <p><strong>Every month after:</strong> if foner doesn’t take a single new enquiry for you, that month is free.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="faq">
   <div class="wrap">
     <div class="center head rv">
@@ -559,7 +629,7 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
     </div>
     <div class="faq rg">
       <details open><summary>Is the month really free?</summary><p>Yes. No card details, no contract and nothing to cancel. If foner hasn’t brought you work by the end of the month, we switch it off and that’s it.</p></details>
-      <details><summary>What happens after the free month?</summary><p>We look at the calls it caught together. If it’s paying for itself, we agree a simple monthly price before anything is charged. If not, you walk away.</p></details>
+      <details><summary>What happens after the free month?</summary><p>We look at what it caught together. If you want to keep it, it’s £49 a month with no contract, or £490 for a year (two months free). Nothing is charged until you say yes. If it hasn’t brought you work, you walk away.</p></details>
       <details><summary>Can I keep my number?</summary><p>Yes. Your phone rings as normal. If you don’t answer, the call forwards to your foner number, so customers keep dialling the number they already know. Turning it off is one short code.</p></details>
       <details><summary>Will callers know it’s AI?</summary><p>It introduces itself as your assistant, and if anyone asks whether it’s AI, it tells them.</p></details>
       <details><summary>Does it give prices or book jobs?</summary><p>It never quotes prices. As standard, it takes the caller’s details and what they need, so you can get back to them. If you’d like it to book appointments straight into your calendar, like the lash and brow example above, we can set that up for you.</p></details>
