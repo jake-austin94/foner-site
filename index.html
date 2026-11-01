@@ -220,12 +220,16 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .incl li{display:flex;gap:10px;align-items:flex-start;line-height:1.35}
 .incl svg{flex:0 0 18px;margin-top:1px}
 .plan .btn{margin-top:auto}
+.extra{max-width:860px;margin:20px auto 0;background:#fff;border-radius:28px;padding:28px 32px}
+.extra h3{font-size:21px;margin-bottom:8px}
+.extra p{margin:0;color:var(--muted)}
+.extra strong{color:var(--text);font-weight:600}
 .promise{max-width:860px;margin:20px auto 0;background:#fff;border-radius:28px;padding:32px;display:flex;gap:20px;align-items:flex-start}
 .promise svg{flex:0 0 40px}
 .promise h3{font-size:21px;margin-bottom:8px}
 .promise p{margin:0 0 6px;color:var(--muted)}
 .promise strong{color:var(--text);font-weight:600}
-@media (max-width:520px){.plan,.promise{padding:28px 24px}.promise{flex-direction:column;gap:12px}}
+@media (max-width:520px){.plan,.promise,.extra{padding:28px 24px}.promise{flex-direction:column;gap:12px}}
 
 /* FAQ */
 .faq{max-width:780px;margin:0 auto;border-top:1px solid var(--line)}
@@ -610,6 +614,10 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
         <a class="btn" href="#join">Start my free month</a>
       </div>
     </div>
+    <div class="extra rv">
+      <h3>Busy month?</h3>
+      <p>Top up with <strong>30 extra minutes for £10</strong>. We’ll let you know when you’re close to your 60 minutes, and your receptionist never stops answering. Any minutes over without a top-up are 30p each, added to your next bill.</p>
+    </div>
     <div class="promise rv">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
       <div>
@@ -630,6 +638,7 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
     <div class="faq rg">
       <details open><summary>Is the month really free?</summary><p>Yes. No card details, no contract and nothing to cancel. If foner hasn’t brought you work by the end of the month, we switch it off and that’s it.</p></details>
       <details><summary>What happens after the free month?</summary><p>We look at what it caught together. If you want to keep it, it’s £49 a month with no contract, or £490 for a year (two months free). Nothing is charged until you say yes. If it hasn’t brought you work, you walk away.</p></details>
+      <details><summary>What if I use more than 60 minutes?</summary><p>Your receptionist keeps answering, always. We’ll tell you when you’re close to 60 minutes so you can top up with 30 extra minutes for £10. Anything over without a top-up is 30p a minute on your next bill. Most calls take two to three minutes.</p></details>
       <details><summary>Can I keep my number?</summary><p>Yes. Your phone rings as normal. If you don’t answer, the call forwards to your foner number, so customers keep dialling the number they already know. Turning it off is one short code.</p></details>
       <details><summary>Will callers know it’s AI?</summary><p>It introduces itself as your assistant, and if anyone asks whether it’s AI, it tells them.</p></details>
       <details><summary>Does it give prices or book jobs?</summary><p>It never quotes prices. As standard, it takes the caller’s details and what they need, so you can get back to them. If you’d like it to book appointments straight into your calendar, like the lash and brow example above, we can set that up for you.</p></details>
