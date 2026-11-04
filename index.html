@@ -302,8 +302,8 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
         <p class="msg" role="status" aria-live="polite"></p>
       </form>
       <div class="done" tabindex="-1">
-        <strong>You’re on the list.</strong>
-        <p>We’ll be in touch to set things up. Thanks for giving it a go.</p>
+        <strong>Your application was a success.</strong>
+        <p>We’ll reach out within the next 24 hours to activate your live AI receptionist. It’s completely free of charge, and we haven’t taken any card details.</p>
       </div>
       <ul class="ticks">
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1FE2FE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>No card needed</li>
@@ -665,8 +665,8 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
         <p class="msg" role="status" aria-live="polite"></p>
       </form>
       <div class="done" tabindex="-1">
-        <strong>You’re on the list.</strong>
-        <p>We’ll be in touch to set things up. Thanks for giving it a go.</p>
+        <strong>Your application was a success.</strong>
+        <p>We’ll reach out within the next 24 hours to activate your live AI receptionist. It’s completely free of charge, and we haven’t taken any card details.</p>
       </div>
     </div>
   </div>
@@ -697,7 +697,10 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
   ids.forEach(function(id){document.getElementById(id).addEventListener('input',calc)});
   calc();
 
-  // Sign-up: posts to FormSubmit, which emails each entry to foner.uk@gmail.com
+  // Sign-up: saved and emailed to foner.uk@gmail.com by our own server (scan-site "trial").
+  // The old FormSubmit email is only a backup if that can't send.
+  var SIGNUP_URL='https://lkfriflskqyvwaknzbet.supabase.co/functions/v1/scan-site';
+  var SUPABASE_KEY='sb_publishable_5U5tHfl4OZwQdv63cVDTAg_ttYhhtdJ';
   var ENDPOINT='https://formsubmit.co/ajax/foner.uk@gmail.com';
   document.querySelectorAll('form.signup').forEach(function(f){
     f.addEventListener('submit',function(e){
@@ -709,21 +712,32 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
       if(!name){msg.className='msg err';msg.textContent='Please add your name.';f.elements.namedItem("name").focus();return}
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.className='msg err';msg.textContent='Please check your business email address.';f.elements.namedItem("email").focus();return}
       btn.disabled=true;btn.textContent='Sending…';
-      var T=window.fonerTrack;
+      var T=window.fonerTrack, ad=T?T.emailFields():{};
       if(T)T.lead({name:name,email:email,website:website,source:f.dataset.source});
-      var payload={name:name,email:email,website:website||'None given',source:f.dataset.source,_subject:'New foner free month sign-up: '+name,_template:'table',_captcha:'false'};
-      if(T){var ad=T.emailFields();for(var k in ad)payload[k]=ad[k]}
-      fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify(payload)})
-        .then(function(r){return r.json().then(function(d){if(!r.ok||d.success===false||d.success==='false')throw new Error(d.message||'failed')})})
-        .then(function(){
-          document.querySelectorAll('.form-wrap').forEach(function(w){w.classList.add('sent')});
-          f.parentNode.querySelector('.done').focus();
+      function success(){
+        document.querySelectorAll('.form-wrap').forEach(function(w){w.classList.add('sent')});
+        f.parentNode.querySelector('.done').focus();
+      }
+      function formBackup(){
+        var payload={name:name,email:email,website:website||'None given',source:f.dataset.source,_subject:'New foner free month sign-up: '+name,_template:'table',_captcha:'false'};
+        for(var k in ad)payload[k]=ad[k];
+        return fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+          .then(function(r){return r.json().then(function(d){if(!r.ok||d.success===false||d.success==='false')throw new Error('failed')})});
+      }
+      fetch(SIGNUP_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+        body:JSON.stringify({action:'trial',email:email,name:name,website:website,source:f.dataset.source,ad_source:ad.ad_source,ad_campaign:ad.ad_campaign,ad_name:ad.ad_name})})
+        .then(function(r){return r.json().catch(function(){return {}})})
+        .then(function(j){
+          if(j&&j.ok&&j.notified)return success();
+          if(j&&j.ok)return formBackup().catch(function(){}).then(success);
+          throw new Error('server');
         })
         .catch(function(){
-          btn.disabled=false;btn.textContent='Start my free month';
-          msg.className='msg err';
-          msg.innerHTML='Something went wrong. Please email <a class="link-dk" href="mailto:foner.uk@gmail.com?subject=foner%20free%20month">foner.uk@gmail.com</a> instead.';
+          formBackup().then(success).catch(function(){
+            btn.disabled=false;btn.textContent='Start my free month';
+            msg.className='msg err';
+            msg.innerHTML='We couldn’t send that just now. Please check your connection and try again, or email <a class="link-dk" href="mailto:foner.uk@gmail.com?subject=foner%20free%20month">foner.uk@gmail.com</a>.';
+          });
         });
     });
   });

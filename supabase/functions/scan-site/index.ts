@@ -2,8 +2,8 @@
 //
 // POST { action: "scan", name, email, website, visitor_id?, utm? }
 //   -> { scan_id, status, display, missing }
-// POST { action: "trial", scan_id, email }
-//   -> { ok: true }
+// POST { action: "trial", email, name?, website?, scan_id? }
+//   -> { ok, saved, notified }  (emails foner.uk@gmail.com about the sign-up)
 // POST { action: "demo", scan_id }
 //   -> { signed_url, variables, calls_left, max_seconds } for a browser demo call
 //
@@ -496,14 +496,74 @@ async function demo(body: any, ip: string, origin: string | null) {
   }, 200, origin);
 }
 
+// ---------- free month sign-up ----------
+// Saves the request and emails foner.uk@gmail.com through the n8n Gmail workflow
+// (the same one the customer emails use), so a sign-up never depends on a
+// third-party form service.
+const NOTIFY_TO = "foner.uk@gmail.com";
+const escHtml = (v: unknown) =>
+  String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+
+async function notify(subject: string, rows: [string, unknown][]) {
+  const { data: cfg } = await db.rpc("mail_config");
+  if (!cfg?.mail_key || !cfg?.mail_webhook) throw new Error("mail config missing");
+  const table = rows.map(([k, v]) =>
+    `<tr><td style="padding:6px 12px 6px 0;color:#6E6E73;vertical-align:top;white-space:nowrap">${escHtml(k)}</td><td style="padding:6px 0">${escHtml(v) || "-"}</td></tr>`).join("");
+  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:15px;color:#1D1D1F"><p style="font-size:17px;margin:0 0 12px 0"><strong>${escHtml(subject)}</strong></p><table cellpadding="0" cellspacing="0">${table}</table><p style="margin:16px 0 0 0;color:#6E6E73">Reach out within 24 hours to activate their receptionist.</p></div>`;
+  const r = await fetch(cfg.mail_webhook, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-foner-key": cfg.mail_key },
+    body: JSON.stringify({ to: NOTIFY_TO, subject, html }),
+  });
+  const text = await r.text();
+  if (!r.ok || /"ok"\s*:\s*false/.test(text)) throw new Error(`notify failed (${r.status})`);
+}
+
 async function trial(body: any, origin: string | null) {
   const id = clip(body.scan_id, 40);
   const email = clip(body.email, 320).toLowerCase();
-  if (!/^[0-9a-f-]{36}$/.test(id) || !email) return json({ error: "bad request" }, 400, origin);
-  const { data, error } = await db.from("website_scans").update({ trial_requested_at: new Date().toISOString() })
-    .eq("id", id).eq("email", email).is("trial_requested_at", null).select("id");
-  if (error) return json({ error: "Something went wrong." }, 500, origin);
-  return json({ ok: true, updated: data?.length ?? 0 }, 200, origin);
+  const name = clip(body.name, 200);
+  const website = clip(body.website, 500);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "bad request" }, 400, origin);
+  const scanId = /^[0-9a-f-]{36}$/.test(id) ? id : null;
+
+  let scanRow: any = null;
+  let saved = false;
+  if (scanId) {
+    const { data } = await db.from("website_scans").select("*").eq("id", scanId).maybeSingle();
+    scanRow = data;
+    if (scanRow && scanRow.email === email) {
+      if (!scanRow.trial_requested_at) {
+        await db.from("website_scans").update({ trial_requested_at: new Date().toISOString() }).eq("id", scanId);
+      }
+      saved = true;
+    }
+  }
+
+  // One notification per person per scan, and a daily ceiling against abuse.
+  const period = `${scanId ?? "no-scan"}:${email}`;
+  const since = new Date(Date.now() - 864e5).toISOString();
+  const [{ count: already }, { count: today }] = await Promise.all([
+    db.from("email_log").select("id", { count: "exact", head: true }).eq("kind", "trial_signup").eq("period", period).eq("status", "sent"),
+    db.from("email_log").select("id", { count: "exact", head: true }).eq("kind", "trial_signup").gte("sent_at", since),
+  ]);
+  if ((already ?? 0) > 0) return json({ ok: true, saved, notified: true }, 200, origin);
+  if ((today ?? 0) >= 50) return json({ ok: true, saved, notified: false }, 200, origin);
+
+  const p = scanRow?.profile ?? {};
+  const subject = `New foner free month sign-up: ${name || email}${p.business_name ? ` (${p.business_name})` : ""}`;
+  const rows: [string, unknown][] = [
+    ["Name", name], ["Email", email], ["Website", website || scanRow?.website],
+    ["Business found", p.business_name], ["Owner", p.owner_name], ["Based in", p.base_town],
+    ["Services", (p.services ?? []).join(", ")], ["Areas", (p.areas ?? []).join(", ")],
+    ["Still to check", (p._missing ?? []).join(", ")],
+    ["Scan", scanRow ? `${scanRow.status}, ${scanRow.pages_scanned ?? 0} pages, id ${scanRow.id}` : "no scan"],
+    ["Came from", [body.ad_source, body.ad_campaign, body.ad_name].filter((x: unknown) => x && x !== "None").join(" / ")],
+  ];
+  let notified = false, error: string | null = null;
+  try { await notify(subject, rows); notified = true; } catch (e) { error = String(e); }
+  await db.from("email_log").insert({ client_id: null, kind: "trial_signup", period, to_email: NOTIFY_TO, subject, status: notified ? "sent" : "failed", error });
+  return json({ ok: true, saved, notified }, 200, origin);
 }
 
 Deno.serve(async (req) => {

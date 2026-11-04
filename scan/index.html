@@ -223,11 +223,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 
   <!-- 4. Done -->
   <section class="panel" id="done" hidden tabindex="-1">
-    <span class="eb">You’re in</span>
-    <h1>We’ll take it <span class="gt-d">from here.</span></h1>
+    <span class="eb">Application received</span>
+    <h1>You’re in. <span class="gt-d">We’ll be in touch.</span></h1>
     <div class="done-box fade">
-      <strong>Your free month has started.</strong>
-      <p>We’ll build your receptionist and be in touch within a day to get it answering your calls. No card, no contract.</p>
+      <strong>Your application was a success.</strong>
+      <p>We’ll reach out within the next 24 hours to activate your live AI receptionist. It’s completely free of charge, and we haven’t taken any card details.</p>
     </div>
   </section>
 </main>
@@ -399,22 +399,36 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     if(call){try{call.endSession()}catch(e){}call=null}
     btn.disabled=true;btn.textContent='Starting…';msgEl.className='msg';msgEl.textContent='';
     var d=state.scan||{},x=d.display||{};
-    var T=window.fonerTrack;
+    var T=window.fonerTrack,ad=T?T.emailFields():{};
     if(T)T.lead({name:state.name,email:state.email,website:state.website,source:'scanner'});
-    if(d.scan_id){fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action:'trial',scan_id:d.scan_id,email:state.email})}).catch(function(){})}
-    var payload={name:state.name,email:state.email,website:state.website,source:'scanner',
-      scan_status:d.status||'not scanned',scan_id:d.scan_id||'none',
-      business_found:x.business_name||'-',services_found:(x.services||[]).join(', ')||'-',areas_found:(x.areas||[]).join(', ')||'-',
-      still_to_check:(d.missing||[]).join(', ')||'-',
-      _subject:'New foner free month sign-up (scanner): '+state.name,_template:'table',_captcha:'false'};
-    if(T){var ad=T.emailFields();for(var k in ad)payload[k]=ad[k]}
-    fetch(EMAIL_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
-      .then(function(r){return r.json().then(function(j){if(!r.ok||j.success===false||j.success==='false')throw new Error('failed')})})
-      .then(function(){show('done');$('done').focus()})
+    function success(){show('done');$('done').focus()}
+    // Backup only: the old form email, used if our own server couldn't send the notification.
+    function formBackup(){
+      var payload={name:state.name,email:state.email,website:state.website,source:'scanner',
+        scan_status:d.status||'not scanned',scan_id:d.scan_id||'none',
+        business_found:x.business_name||'-',services_found:(x.services||[]).join(', ')||'-',areas_found:(x.areas||[]).join(', ')||'-',
+        still_to_check:(d.missing||[]).join(', ')||'-',
+        _subject:'New foner free month sign-up (scanner): '+state.name,_template:'table',_captcha:'false'};
+      for(var k in ad)payload[k]=ad[k];
+      return fetch(EMAIL_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+        .then(function(r){return r.json().then(function(j){if(!r.ok||j.success===false||j.success==='false')throw new Error('failed')})});
+    }
+    var body={action:'trial',scan_id:d.scan_id||null,email:state.email,name:state.name,website:state.website,
+      ad_source:ad.ad_source,ad_campaign:ad.ad_campaign,ad_name:ad.ad_name};
+    fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify(body)})
+      .then(function(r){return r.json().catch(function(){return {}})})
+      .then(function(j){
+        if(j&&j.ok&&j.notified)return success();
+        // Saved but the notification didn't go: try the backup, and show success either way.
+        if(j&&j.ok)return formBackup().catch(function(){}).then(success);
+        throw new Error('server');
+      })
       .catch(function(){
-        btn.disabled=false;btn.textContent='Start my free month';
-        msgEl.className='msg err';
-        msgEl.innerHTML='Something went wrong. Please email <a href="mailto:foner.uk@gmail.com?subject=foner%20free%20month">foner.uk@gmail.com</a> instead.';
+        formBackup().then(success).catch(function(){
+          btn.disabled=false;btn.textContent='Start my free month';
+          msgEl.className='msg err';
+          msgEl.innerHTML='We couldn’t send that just now. Please check your connection and try again, or email <a href="mailto:foner.uk@gmail.com?subject=foner%20free%20month">foner.uk@gmail.com</a>.';
+        });
       });
   }
   $('start').addEventListener('click',function(){startTrial(this,$('start-msg'))});
