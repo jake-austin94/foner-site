@@ -4,6 +4,8 @@
 //   -> { scan_id, status, display, missing }
 // POST { action: "trial", scan_id, email }
 //   -> { ok: true }
+// POST { action: "demo", scan_id }
+//   -> { signed_url, variables, calls_left, max_seconds } for a browser demo call
 //
 // Safety:
 // - Website text is only ever DATA. Gemini extracts facts into a fixed JSON shape.
@@ -281,7 +283,7 @@ async function scan(body: any, ip: string, origin: string | null) {
   const { data: recent } = await db.from("website_scans").select("*")
     .eq("domain", domain).in("status", ["ready", "needs_review"]).gte("created_at", since)
     .order("created_at", { ascending: false }).limit(1);
-  if (recent?.[0]) return json(publicResult(recent[0]), 200, origin);
+  if (recent?.[0]) return json(publicResult(recent[0], !!(await demoAgent())), 200, origin);
 
   const [{ count: ipCount }, { count: domCount }, { count: allCount }] = await Promise.all([
     db.from("website_scans").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("created_at", since),
@@ -363,7 +365,7 @@ async function scan(body: any, ip: string, origin: string | null) {
       removed, kb_text: kbFacts.join("\n"),
     };
     const { data: saved } = await db.from("website_scans").update(update).eq("id", id).select("*").single();
-    return json(publicResult(saved), 200, origin);
+    return json(publicResult(saved, !!(await demoAgent())), 200, origin);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     await db.from("website_scans").update({ status: "failed", error: msg.slice(0, 500) }).eq("id", id);
@@ -372,7 +374,7 @@ async function scan(body: any, ip: string, origin: string | null) {
   }
 }
 
-function publicResult(r: any) {
+function publicResult(r: any, demoOn = false) {
   const p = r.profile || {};
   return {
     scan_id: r.id,
@@ -386,8 +388,112 @@ function publicResult(r: any) {
       summary: p._summary || "",
       pages_scanned: r.pages_scanned || 0,
     },
+    demo_available: demoOn && demoReady(r),
     missing: p._missing || [],
   };
+}
+
+// ---------- website demo call ----------
+// The shared demo agent has the template's rules built in; this only supplies
+// the visitor's (already screened) business facts as dynamic variables, and a
+// one-time signed link so the ElevenLabs key never reaches the browser.
+// A separate key that can only start agent calls (the main key is read-only).
+const elevenKey = () => (Deno.env.get("ELEVENLABS_DEMO_KEY") ?? "").trim();
+const DEMO_LIMITS = { perScan: 2, perIpPerDay: 4, allPerDay: 40 };
+const STANDARD_FLAGS = [
+  "complaints or problems with past work",
+  "active leaks or damaged tiles (urgent)",
+  "commercial properties",
+  "anyone outside the areas covered",
+];
+const joinList = (items: string[], last = "and") =>
+  items.length <= 1 ? (items[0] ?? "") : items.slice(0, -1).join(", ") + ` ${last} ` + items[items.length - 1];
+
+function demoVariables(p: any, visitorName: string) {
+  const first = (visitorName || "").trim().split(/\s+/)[0] || "";
+  const fromForm = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+  const owner = p.owner_name || (/^[A-Z][a-zA-Z'-]{1,20}$/.test(fromForm) ? fromForm : "the owner");
+  const business = p.business_name;
+  const email = p.business_email || "";
+  let short: string, long: string, send: string;
+  if (p.whatsapp_on_called_number || !email) {
+    short = email ? "via WhatsApp or email" : "via WhatsApp";
+    long = email ? "by WhatsApp (to the number they have called) or by email" : "by WhatsApp to the number they have called";
+    send = "Tell them to send a few clear photos, covering the whole area and any problem spots, by WhatsApp to the number they have called." +
+      (email ? ` If they would rather use email, the business email address is ${email}: say it slowly and clearly, spelling it out as ${p.business_email_spoken}, and offer to repeat it.` : "");
+  } else {
+    short = "by email";
+    long = "by email";
+    send = `Tell them to send a few clear photos, covering the whole area and any problem spots, by email. The business email address is ${email}: say it slowly and clearly, spelling it out as ${p.business_email_spoken}, and offer to repeat it.`;
+  }
+  const areas: string[] = p.areas?.length ? p.areas : (p.base_town ? [p.base_town] : []);
+  return {
+    business_name: business,
+    business_name_spoken: p.business_name_spoken || business,
+    owner_name: owner,
+    owner_full_name: p.owner_full_name || owner,
+    base_town: p.base_town || areas[0] || "the local area",
+    services_list: joinList(p.services),
+    problem_list: p.problem_examples?.length ? joinList(p.problem_examples, "or") : "property",
+    unsupported_list: p.unsupported_examples?.length ? joinList(p.unsupported_examples, "or") : "anything outside the services above",
+    areas_list: areas.length ? joinList(areas) : "the local area",
+    flags_list: joinList(STANDARD_FLAGS),
+    photo_channels_short: short,
+    photo_channels_long: long,
+    photo_send_instructions: send,
+    visit_times_sentence: "",
+  };
+}
+
+const demoReady = (r: any) =>
+  r?.template_id === "trades-quote" && !!r?.profile?.business_name && (r?.profile?.services?.length ?? 0) > 0;
+
+// Demos are switched on by putting the demo agent's id in app_settings (and having the key).
+async function demoAgent(): Promise<string | null> {
+  if (!elevenKey()) return null;
+  const { data } = await db.from("app_settings").select("value").eq("key", "demo_agent_trades_quote").maybeSingle();
+  return data?.value || null;
+}
+
+async function demo(body: any, ip: string, origin: string | null) {
+  const id = clip(body.scan_id, 40);
+  if (!/^[0-9a-f-]{36}$/.test(id)) return json({ error: "bad request" }, 400, origin);
+  const { data: scanRow } = await db.from("website_scans").select("id,name,status,template_id,profile").eq("id", id).maybeSingle();
+  if (!scanRow) return json({ error: "We couldn't find that scan. Please scan your website again." }, 404, origin);
+  if (!demoReady(scanRow)) return json({ error: "We can't run a demo for this business automatically yet. Start your free month and we'll set it up for you.", unavailable: true }, 200, origin);
+
+  const agentId = await demoAgent();
+  if (!agentId) return json({ error: "Demo calls are switched off just now. Start your free month and we'll set it up for you.", unavailable: true }, 200, origin);
+
+  const ipHash = await sha256(ip + "|" + SERVICE_KEY.slice(-16));
+  const since = new Date(Date.now() - 864e5).toISOString();
+  const [{ count: perScan }, { count: perIp }, { count: all }] = await Promise.all([
+    db.from("demo_calls").select("id", { count: "exact", head: true }).eq("scan_id", id),
+    db.from("demo_calls").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("created_at", since),
+    db.from("demo_calls").select("id", { count: "exact", head: true }).gte("created_at", since),
+  ]);
+  if ((perScan ?? 0) >= DEMO_LIMITS.perScan) {
+    return json({ error: "That's the demo calls used for this scan. Start your free month to have it answering your real calls.", limited: true }, 429, origin);
+  }
+  if ((perIp ?? 0) >= DEMO_LIMITS.perIpPerDay || (all ?? 0) >= DEMO_LIMITS.allPerDay) {
+    return json({ error: "We've had a lot of demo calls today. Start your free month and we'll set it up for you.", limited: true }, 429, origin);
+  }
+
+  const res = await fetch(`https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`, {
+    headers: { "xi-api-key": elevenKey() },
+  });
+  if (!res.ok) {
+    console.error("signed url failed", res.status, (await res.text()).slice(0, 300));
+    return json({ error: "The demo couldn't start just now. Please try again in a minute.", unavailable: true }, 502, origin);
+  }
+  const { signed_url } = await res.json();
+  await db.from("demo_calls").insert({ scan_id: id, ip_hash: ipHash, agent_id: agentId });
+  return json({
+    signed_url,
+    variables: demoVariables(scanRow.profile, scanRow.name || ""),
+    calls_left: DEMO_LIMITS.perScan - (perScan ?? 0) - 1,
+    max_seconds: 150,
+  }, 200, origin);
 }
 
 async function trial(body: any, origin: string | null) {
@@ -411,5 +517,6 @@ Deno.serve(async (req) => {
   const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "unknown";
   if (body?.action === "scan") return scan(body, ip, origin);
   if (body?.action === "trial") return trial(body, origin);
+  if (body?.action === "demo") return origin ? demo(body, ip, origin) : json({ error: "Not allowed" }, 403, origin);
   return json({ error: "unknown action" }, 400, origin);
 });

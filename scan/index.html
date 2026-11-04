@@ -92,6 +92,31 @@ input:focus{outline:2px solid #2A94FE;outline-offset:1px}
 .card .msg.err a{color:var(--accent)}
 .card .btn{margin-top:8px}
 
+/* Demo call */
+.talk{margin:0;padding:20px;border-radius:16px;background:var(--navy);color:#fff;display:flex;flex-direction:column;gap:12px}
+.talk h2{font-size:21px;color:#fff}
+.talk p{margin:0;font-size:15px;color:var(--soft-navy)}
+.talk .btn{margin-top:4px}
+.btn-call{background:#fff;color:var(--navy);gap:10px}
+.btn-call svg{flex:0 0 20px}
+.btn-end{background:#D93025;color:#fff}
+.btn-end svg{display:none}
+.live{display:flex;align-items:center;gap:14px}
+.orb{flex:0 0 44px;height:44px;border-radius:50%;background:var(--btn);box-shadow:0 0 0 0 rgba(42,148,254,.5)}
+.orb.speaking{animation:pulse 1.2s var(--ease) infinite}
+.orb.listening{background:#26344D;box-shadow:inset 0 0 0 2px var(--cyan)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(42,148,254,.55)}70%{box-shadow:0 0 0 14px rgba(42,148,254,0)}100%{box-shadow:0 0 0 0 rgba(42,148,254,0)}}
+.live-txt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.live-txt strong{font-size:17px}
+.live-txt span{font-size:14px;color:var(--muted-navy)}
+.transcript{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;padding-right:4px}
+.transcript p{margin:0;padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.4;max-width:88%}
+.transcript .ai{background:var(--navy-card);border:1px solid var(--navy-border);color:#fff;align-self:flex-start}
+.transcript .you{background:#1A64E8;color:#fff;align-self:flex-end}
+.talk .msg{color:var(--soft-navy)}
+.talk .msg.err{color:#FFB4A6}
+.talk .msg a{color:#5CC8FF}
+
 .done-box{width:100%;margin-top:24px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:24px;padding:32px 24px}
 .done-box strong{display:block;font-size:24px;margin-bottom:8px}
 .done-box p{margin:0;color:var(--soft-navy)}
@@ -165,6 +190,17 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
         <div id="r-services-row"><dt>Services it can talk about</dt><dd class="chips" id="r-services"></dd></div>
         <div id="r-areas-row"><dt>Areas you cover</dt><dd class="chips" id="r-areas"></dd></div>
       </dl>
+      <div class="talk" id="talk" hidden>
+        <h2>Hear it answer as your business.</h2>
+        <p id="talk-intro">Talk to it like a caller would. Ask for a quote, give it an address and see what it does. It uses your microphone and lasts up to 2&frac12; minutes.</p>
+        <div class="live" id="talk-live" hidden>
+          <div class="orb listening" id="talk-orb" aria-hidden="true"></div>
+          <div class="live-txt"><strong id="talk-status">Connecting…</strong><span id="talk-timer">Allow your microphone when asked</span></div>
+        </div>
+        <div class="transcript" id="talk-transcript" aria-live="polite" hidden></div>
+        <button class="btn btn-call" id="talk-btn" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg><span>Talk to it</span></button>
+        <p class="msg" id="talk-msg" role="status" aria-live="polite"></p>
+      </div>
       <p class="missing" id="r-missing" hidden><strong>We’ll check a few things with you</strong><span id="r-missing-list"></span></p>
       <p class="small" style="text-align:left">It never gives prices or books jobs. It takes the caller’s details and sends them straight to you.</p>
       <button class="btn" id="start" type="button">Start my free month</button>
@@ -270,9 +306,97 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     $('r-missing').hidden=!miss.length;
     var nice={"owner's first name":'the name callers should ask for',"where you're based":'where you’re based','business name':'your business name','services':'the services you offer','areas you cover':'the areas you cover','business email':'the email customers can send photos to'};
     $('r-missing-list').textContent=miss.length?'Including '+list(miss.map(function(m){return nice[m]||m}))+'.':'';
+    $('talk').hidden=!d.demo_available;
+    if(d.demo_available){state.callsLeft=2;talkBtn('Talk to it','call');talkMsg('');$('talk-live').hidden=true;$('talk-transcript').hidden=true;$('talk-transcript').innerHTML='';}
   }
 
+  // ---------- Demo call: talk to the receptionist in the browser ----------
+  var SDK_URL='https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.29.0/dist/lib.iife.js';
+  var call=null,callTimer=null,callEnds=0,sdkPromise=null,calling=false;
+  function loadSdk(){
+    if(window.ElevenLabsClient)return Promise.resolve(window.ElevenLabsClient);
+    if(sdkPromise)return sdkPromise;
+    sdkPromise=new Promise(function(res,rej){
+      var sc=document.createElement('script');sc.src=SDK_URL;sc.async=true;
+      sc.onload=function(){window.ElevenLabsClient?res(window.ElevenLabsClient):rej(new Error('sdk'))};
+      sc.onerror=function(){sdkPromise=null;rej(new Error('sdk'))};
+      document.head.appendChild(sc);
+    });
+    return sdkPromise;
+  }
+  function talkMsg(text,isErr,html){var m=$('talk-msg');m.className='msg'+(isErr?' err':'');if(html)m.innerHTML=text;else m.textContent=text}
+  function talkBtn(label,mode){var b=$('talk-btn');b.querySelector('span').textContent=label;b.className='btn '+(mode==='end'?'btn-end':'btn-call');b.disabled=(mode==='busy')}
+  function addLine(who,text){
+    var t=$('talk-transcript');t.hidden=false;
+    var p=document.createElement('p');p.className=who==='ai'?'ai':'you';p.textContent=text;t.appendChild(p);t.scrollTop=t.scrollHeight;
+  }
+  function setMode(mode){
+    var o=$('talk-orb');
+    o.className='orb '+(mode==='speaking'?'speaking':'listening');
+    $('talk-status').textContent=mode==='speaking'?'Receptionist speaking':'Listening…';
+  }
+  function tick(){
+    var left=Math.max(0,Math.round((callEnds-Date.now())/1000));
+    $('talk-timer').textContent=Math.floor(left/60)+':'+('0'+(left%60)).slice(-2)+' left · speak whenever you’re ready';
+  }
+  function callEnded(text){
+    clearInterval(callTimer);call=null;calling=false;
+    $('talk-live').hidden=true;
+    var left=state.callsLeft;
+    talkBtn(left>0?'Talk to it again':'Demo used',left>0?'call':'busy');
+    if(left<=0)$('talk-btn').disabled=true;
+    talkMsg(text||'Call ended. Like how it handled that? Start your free month below and it can answer your real calls.');
+  }
+  function startCall(){
+    if(calling)return;
+    var d=state.scan||{};
+    if(!d.scan_id)return;
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){talkMsg('Your browser can’t use a microphone here. Try Chrome or Safari on your phone.',true);return}
+    calling=true;talkMsg('');talkBtn('Connecting…','busy');
+    $('talk-live').hidden=false;$('talk-status').textContent='Connecting…';$('talk-timer').textContent='Allow your microphone when asked';
+    var sdk=loadSdk();
+    // Microphone first, so nobody uses up a demo call before saying yes to the mic.
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      stream.getTracks().forEach(function(t){t.stop()});
+      return fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({action:'demo',scan_id:d.scan_id})})
+        .then(function(r){return r.json().catch(function(){return {}})});
+    },function(){throw {mic:true}}).then(function(res){
+      if(!res||!res.signed_url){throw {server:res&&res.error,limited:res&&res.limited}}
+      state.callsLeft=typeof res.calls_left==='number'?res.calls_left:0;
+      return sdk.then(function(EL){
+        $('talk-transcript').innerHTML='';
+        return EL.Conversation.startSession({
+          signedUrl:res.signed_url,
+          dynamicVariables:res.variables,
+          onConnect:function(){
+            callEnds=Date.now()+(res.max_seconds||150)*1000;tick();callTimer=setInterval(tick,1000);
+            setMode('listening');talkBtn('End call','end');
+          },
+          onDisconnect:function(){callEnded()},
+          onModeChange:function(m){setMode(m&&m.mode)},
+          onMessage:function(m){if(m&&m.message)addLine(m.source==='ai'?'ai':'you',m.message)},
+          onError:function(){}
+        });
+      });
+    }).then(function(c){call=c})
+    .catch(function(e){
+      calling=false;clearInterval(callTimer);$('talk-live').hidden=true;
+      if(e&&e.mic){talkBtn('Talk to it','call');talkMsg('We need your microphone for the demo. Allow it in your browser settings and try again.',true);return}
+      if(e&&e.server){
+        talkBtn(e.limited?'Demo used':'Talk to it',e.limited?'busy':'call');
+        talkMsg(esc(e.server).replace('Start your free month','<a href="#start">Start your free month</a>'),true,true);return;
+      }
+      talkBtn('Talk to it','call');talkMsg('The demo couldn’t start just now. Please try again in a minute.',true);
+    });
+  }
+  $('talk-btn').addEventListener('click',function(){
+    if(call){var c=call;call=null;c.endSession().catch(function(){});return}
+    startCall();
+  });
+  window.addEventListener('pagehide',function(){if(call){try{call.endSession()}catch(e){}}});
+
   function startTrial(btn,msgEl){
+    if(call){try{call.endSession()}catch(e){}call=null}
     btn.disabled=true;btn.textContent='Starting…';msgEl.className='msg';msgEl.textContent='';
     var d=state.scan||{},x=d.display||{};
     var T=window.fonerTrack;
