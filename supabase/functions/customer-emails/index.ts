@@ -118,7 +118,7 @@ function usageEmail(c: Client, u: Usage, s: Record<string, string | null>, today
     next = `<p style="margin:0 0 16px 0"><strong>Nothing to pay.</strong> You're in your free month, so any minutes over ${total} are on us. foner will keep answering every call.</p>`;
   } else {
     const topup = s.topup_url || mailto(`Top up 30 minutes - ${c.business_name}`);
-    next = `<p style="margin:0 0 16px 0"><strong>foner never stops answering.</strong> ${over ? "From now on, minutes" : `Minutes over ${total}`} are 30p each on your next bill. Expecting a busy few weeks? Top up 30 minutes for £10.</p>
+    next = `<p style="margin:0 0 16px 0"><strong>foner never stops answering.</strong> ${over ? "You're over your" : "If you go over your"} ${total} minutes, that's fine. Expecting a busy few weeks? Top up 30 minutes for £10.</p>
 <div style="margin:0 0 20px 0">${button(topup, "Top up 30 minutes for £10")}</div>`;
   }
 
