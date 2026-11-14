@@ -57,4 +57,5 @@ Example:
 
 - **Secret needed:** `GEMINI_API_KEY` in Supabase → Edge Functions → Secrets. Optional `GEMINI_MODEL` (default `gemini-3.5-flash-lite`).
 - **Limits:** 5 scans per visitor IP per day, 3 per website per day, 200 in total per day. A site scanned in the last 24 hours reuses that scan for free.
+- **Agent templates:** the scan sorts each business into `trades-quote`, `trades-callout` (plumbers, electricians and other repair trades) or `appointments` (salons). Each has its own shared demo agent, switched on by its id in `app_settings` (`demo_agent_trades_quote`, `demo_agent_trades_callout`, `demo_agent_appointments`). The wording of each template is kept privately in the `agent_templates` table (admins only).
 - **Viewing scans:** `website_scans` is admin-only (RLS). `profile` matches the trades-quote template's profile shape; `removed` lists anything the screening dropped; `kb_text` is cleaned material for the knowledge base.

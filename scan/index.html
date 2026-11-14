@@ -306,6 +306,9 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     $('r-missing').hidden=!miss.length;
     var nice={"owner's first name":'the name callers should ask for',"where you're based":'where you’re based','business name':'your business name','services':'the services you offer','areas you cover':'the areas you cover','business email':'the email customers can send photos to'};
     $('r-missing-list').textContent=miss.length?'Including '+list(miss.map(function(m){return nice[m]||m}))+'.':'';
+    var intro={'trades-callout':'Talk to it like a caller would. Tell it about a problem, say how urgent it is and see what it does.','appointments':'Talk to it like a client would. Ask to book a treatment and see what it does.'}[d.template]||'Talk to it like a caller would. Ask for a quote, give it an address and see what it does.';
+    $('talk-intro').innerHTML=intro+' It uses your microphone and lasts up to 2&frac12; minutes.';
+    $('r-services-row').querySelector('dt').textContent=d.template==='appointments'?'Treatments it can talk about':'Services it can talk about';
     $('talk').hidden=!d.demo_available;
     if(d.demo_available){state.callsLeft=2;talkBtn('Talk to it','call');talkMsg('');$('talk-live').hidden=true;$('talk-transcript').hidden=true;$('talk-transcript').innerHTML='';}
   }
