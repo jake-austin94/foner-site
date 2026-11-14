@@ -286,18 +286,18 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
 <section class="hero dark">
   <div class="wrap center">
     <img class="hero-mark rv-z" src="assets/foner-mark.png" alt="" width="130" height="112">
-    <span class="eb rv">One month free. No catch.</span>
+    <span class="eb rv">Build yours in 30 seconds. Free.</span>
     <h1 class="rv">Every call. <span class="gt-d">Answered.</span></h1>
-    <p class="sub rv">foner picks up the calls you can’t, takes the details and sends them straight to you. Try it free for a month. If it doesn’t bring you work, you walk away.</p>
+    <p class="sub rv">foner picks up the calls you can’t, takes the details and sends them straight to you. Enter your website and we’ll build your receptionist while you wait, so you can talk to it before you decide anything.</p>
 
     <div class="form-wrap rv" style="width:100%;display:flex;flex-direction:column;align-items:center">
-      <form class="signup" data-source="hero" novalidate>
+      <form class="signup" data-build data-source="hero-build" novalidate>
         <div class="fields">
           <label class="hp" aria-hidden="true">Leave this empty<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label>
+          <input type="text" name="website" placeholder="Your website, e.g. yourbusiness.co.uk" autocomplete="url" inputmode="url" autocapitalize="off" spellcheck="false" aria-label="Your business website" required>
           <input type="text" name="name" placeholder="Your name" autocomplete="name" aria-label="Your name" required>
           <input type="email" name="email" placeholder="Business email" autocomplete="email" inputmode="email" aria-label="Business email" required>
-          <input type="url" name="website" placeholder="Business website (if you have one)" autocomplete="url" inputmode="url" aria-label="Business website, optional">
-          <button class="btn" type="submit">Start my free month</button>
+          <button class="btn" type="submit">Build my receptionist</button>
         </div>
         <p class="msg" role="status" aria-live="polite"></p>
       </form>
@@ -310,7 +310,7 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1FE2FE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>No contract</li>
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1FE2FE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Keep your number</li>
       </ul>
-      <p class="scan-link"><a class="link-dk" href="scan/">Got a website? See your receptionist in 30 seconds ›</a></p>
+      <p class="scan-link"><a class="link-dk" href="#join">No website? Start your free month and we’ll build it for you ›</a></p>
     </div>
   </div>
 </section>
@@ -702,7 +702,24 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
   var SIGNUP_URL='https://lkfriflskqyvwaknzbet.supabase.co/functions/v1/scan-site';
   var SUPABASE_KEY='sb_publishable_5U5tHfl4OZwQdv63cVDTAg_ttYhhtdJ';
   var ENDPOINT='https://formsubmit.co/ajax/foner.uk@gmail.com';
-  document.querySelectorAll('form.signup').forEach(function(f){
+  // Hero: build-and-try. Checks the details, then hands them to the scanner page, which starts
+  // straight away. They go in sessionStorage (not the address bar) and are removed once read.
+  document.querySelectorAll('form.signup[data-build]').forEach(function(f){
+    f.addEventListener('submit',function(e){
+      e.preventDefault();
+      var msg=f.querySelector('.msg');
+      var website=f.elements.namedItem("website").value.trim(), name=f.elements.namedItem("name").value.trim(), email=f.elements.namedItem("email").value.trim();
+      msg.className='msg';msg.textContent='';
+      if(f.elements.namedItem("_honey").value)return;
+      if(!/^(https?:\/\/)?[^\s\/]+\.[^\s]{2,}/i.test(website)){msg.className='msg err';msg.textContent='Please add your website, for example yourbusiness.co.uk';f.elements.namedItem("website").focus();return}
+      if(!name){msg.className='msg err';msg.textContent='Please add your name.';f.elements.namedItem("name").focus();return}
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.className='msg err';msg.textContent='Please check your business email address.';f.elements.namedItem("email").focus();return}
+      try{sessionStorage.setItem('foner_build',JSON.stringify({website:website,name:name,email:email}))}catch(err){}
+      location.href='scan/';
+    });
+  });
+
+  document.querySelectorAll('form.signup:not([data-build])').forEach(function(f){
     f.addEventListener('submit',function(e){
       e.preventDefault();
       var msg=f.querySelector('.msg'), btn=f.querySelector('button');
