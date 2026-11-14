@@ -58,6 +58,12 @@ input::placeholder{color:#7D8A9E}
 input:focus{outline:2px solid #2A94FE;outline-offset:1px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:520px){.row{grid-template-columns:1fr}}
+textarea{min-height:84px;border-radius:12px;border:1px solid var(--navy-input);background:var(--navy-card);color:#fff;font:inherit;padding:12px 16px;width:100%;resize:vertical}
+textarea::placeholder{color:#7D8A9E}
+textarea:focus{outline:2px solid #2A94FE;outline-offset:1px}
+.tailor-note{margin:0;padding:16px 20px;border-radius:16px;background:#EEF4FF;color:#0B1F4D;font-size:15px;text-align:left}
+.tailor-note strong{display:block;margin-bottom:2px}
+#tailor-form{display:flex;flex-direction:column;gap:14px;margin-top:20px;text-align:left}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .small{margin:0;font-size:14px;color:var(--muted-navy);text-align:center}
 .msg{margin:0;font-size:15px}
@@ -202,10 +208,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
         <p class="msg" id="talk-msg" role="status" aria-live="polite"></p>
       </div>
       <p class="missing" id="r-missing" hidden><strong>We’ll check a few things with you</strong><span id="r-missing-list"></span></p>
+      <p class="tailor-note"><strong>This is your receptionist before we make it yours.</strong>It’s built only from what your website says. Start your free month and you can tell us exactly what it should ask, say and flag, and we’ll set it up that way before it answers a real call.</p>
       <p class="small" style="text-align:left">It never gives prices or books jobs. It takes the caller’s details and sends them straight to you.</p>
       <button class="btn" id="start" type="button">Start my free month</button>
       <p class="msg" id="start-msg" role="status" aria-live="polite"></p>
-      <p class="small">Something not quite right? We’ll fix it when we set you up.</p>
+      <p class="small">Start your free month and you can tell us exactly how you want it to answer.</p>
     </div>
   </section>
 
@@ -224,10 +231,37 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   <!-- 4. Done -->
   <section class="panel" id="done" hidden tabindex="-1">
     <span class="eb">Application received</span>
-    <h1>You’re in. <span class="gt-d">We’ll be in touch.</span></h1>
+    <h1>You’re in. <span class="gt-d">Now make it yours.</span></h1>
     <div class="done-box fade">
       <strong>Your application was a success.</strong>
       <p>We’ll reach out within the next 24 hours to activate your live AI receptionist. It’s completely free of charge, and we haven’t taken any card details.</p>
+    </div>
+    <div class="done-box fade" id="tailor">
+      <strong>Tell us how it should answer.</strong>
+      <p>What you tried was built from your website alone. Tell us what you want and we’ll set your receptionist up to do exactly that. Fill in as much or as little as you like.</p>
+      <form id="tailor-form" novalidate>
+        <label class="f">Who should callers ask for?
+          <input type="text" name="owner" maxlength="60" autocomplete="given-name" placeholder="The name it uses for you">
+        </label>
+        <label class="f">Best number for us to reach you
+          <input type="tel" name="phone" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="Mobile number">
+        </label>
+        <label class="f">What should it always find out from a caller?
+          <textarea name="ask" maxlength="1000" placeholder="For example: the type of property, how soon they need it"></textarea>
+        </label>
+        <label class="f">Is there anything it should never say or do?
+          <textarea name="never" maxlength="1000" placeholder="For example: never offer weekend visits"></textarea>
+        </label>
+        <label class="f">Which calls should be marked urgent?
+          <textarea name="urgent" maxlength="1000" placeholder="For example: leaks, existing customers with a problem"></textarea>
+        </label>
+        <label class="f">Anything else you want it to do?
+          <textarea name="other" maxlength="1500" placeholder="Opening hours, services to push, how you like to quote"></textarea>
+        </label>
+        <button class="btn" type="submit">Send to foner</button>
+        <p class="msg" role="status" aria-live="polite"></p>
+        <p class="small" style="text-align:center">You can skip this. We’ll go through it with you when we get in touch.</p>
+      </form>
     </div>
   </section>
 </main>
@@ -245,6 +279,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   var SCAN_URL='https://lkfriflskqyvwaknzbet.supabase.co/functions/v1/scan-site';
   var SUPABASE_KEY='sb_publishable_5U5tHfl4OZwQdv63cVDTAg_ttYhhtdJ';
   var EMAIL_ENDPOINT='https://formsubmit.co/ajax/foner.uk@gmail.com';
+  var REST_URL='https://lkfriflskqyvwaknzbet.supabase.co/rest/v1';
   var $=function(id){return document.getElementById(id)};
   var state={name:'',email:'',website:'',scan:null};
 
@@ -293,6 +328,46 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       .catch(function(){finishSteps();btn.disabled=false;state.scan=null;$('fb-reason').textContent='We couldn’t reach your website just now.';show('fallback')});
   });
 
+  // "Make it yours": what the owner wants their receptionist to do. Saved to our own table
+  // (insert only; the public key can't read it back) and emailed to foner as a table.
+  $('tailor-form').addEventListener('submit',function(e){
+    e.preventDefault();
+    var f=e.target,msg=f.querySelector('.msg'),btn=f.querySelector('button');
+    var v=function(k){return f.elements[k].value.trim()};
+    var answers={owner:v('owner'),phone:v('phone'),always_ask:v('ask'),never:v('never'),urgent:v('urgent'),other:v('other')};
+    var filled=Object.keys(answers).some(function(k){return answers[k]});
+    msg.className='msg';msg.textContent='';
+    if(!filled){msg.className='msg err';msg.textContent='Add at least one answer, or skip this and we’ll go through it with you.';return}
+    btn.disabled=true;btn.textContent='Sending…';
+    var d=state.scan||{},x=d.display||{};
+    var save=fetch(REST_URL+'/setup_requests',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify({scan_id:d.scan_id||null,email:state.email,name:state.name,answers:answers})}).then(function(r){return r.ok});
+    var payload={name:state.name,email:state.email,website:state.website,business_found:x.business_name||'-',
+      callers_ask_for:answers.owner||'-',phone:answers.phone||'-',always_find_out:answers.always_ask||'-',never_say_or_do:answers.never||'-',
+      mark_urgent:answers.urgent||'-',anything_else:answers.other||'-',scan_id:d.scan_id||'none',
+      _subject:'foner setup answers: '+(x.business_name||state.name),_template:'table',_captcha:'false'};
+    var mail=fetch(EMAIL_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){return r.ok}).catch(function(){return false});
+    Promise.all([save.catch(function(){return false}),mail]).then(function(ok){
+      if(ok[0]||ok[1]){
+        $('tailor').innerHTML='<strong>Got it. Thank you.</strong><p>We’ll build your receptionist around what you’ve told us and be in touch within 24 hours.</p>';
+      }else{
+        btn.disabled=false;btn.textContent='Send to foner';
+        msg.className='msg err';msg.innerHTML='We couldn’t send that just now. Please try again, or email it to <a class="link-dk" href="mailto:foner.uk@gmail.com?subject=foner%20setup">foner.uk@gmail.com</a>.';
+      }
+    });
+  });
+
+  // Arriving from the home page banner: the details are already filled in, so start building.
+  (function(){
+    var raw=null;try{raw=sessionStorage.getItem('foner_build');sessionStorage.removeItem('foner_build')}catch(e){}
+    if(!raw)return;
+    var b;try{b=JSON.parse(raw)}catch(e){return}
+    var f=$('scan-form');
+    f.elements.website.value=b.website||'';f.elements.name.value=b.name||'';f.elements.email.value=b.email||'';
+    if(b.website&&b.name&&b.email)f.dispatchEvent(new Event('submit',{cancelable:true}));
+  })();
+
   function renderResult(d){
     var x=d.display||{};
     var name=x.business_name||'your business';
@@ -306,6 +381,9 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     $('r-missing').hidden=!miss.length;
     var nice={"owner's first name":'the name callers should ask for',"where you're based":'where you’re based','business name':'your business name','services':'the services you offer','areas you cover':'the areas you cover','business email':'the email customers can send photos to'};
     $('r-missing-list').textContent=miss.length?'Including '+list(miss.map(function(m){return nice[m]||m}))+'.':'';
+    var intro={'trades-callout':'Talk to it like a caller would. Tell it about a problem, say how urgent it is and see what it does.','appointments':'Talk to it like a client would. Ask to book a treatment and see what it does.'}[d.template]||'Talk to it like a caller would. Ask for a quote, give it an address and see what it does.';
+    $('talk-intro').innerHTML=intro+' It uses your microphone and lasts up to 2&frac12; minutes.';
+    $('r-services-row').querySelector('dt').textContent=d.template==='appointments'?'Treatments it can talk about':'Services it can talk about';
     $('talk').hidden=!d.demo_available;
     if(d.demo_available){state.callsLeft=2;talkBtn('Talk to it','call');talkMsg('');$('talk-live').hidden=true;$('talk-transcript').hidden=true;$('talk-transcript').innerHTML='';}
   }
@@ -401,7 +479,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     var d=state.scan||{},x=d.display||{};
     var T=window.fonerTrack,ad=T?T.emailFields():{};
     if(T)T.lead({name:state.name,email:state.email,website:state.website,source:'scanner'});
-    function success(){show('done');$('done').focus()}
+    function success(){var o=$('tailor-form').elements.owner;if(!o.value)o.value=x.owner_name||(state.name||'').split(/\s+/)[0]||'';show('done');$('done').focus()}
     // Backup only: the old form email, used if our own server couldn't send the notification.
     function formBackup(){
       var payload={name:state.name,email:state.email,website:state.website,source:'scanner',

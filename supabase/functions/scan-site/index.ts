@@ -15,6 +15,13 @@
 // - Only public http(s) hosts are fetched (no IPs, localhost or internal names),
 //   redirects are checked hop by hop, pages are size and time limited.
 // - Rate limits per visitor IP, per domain and per day.
+//
+// Templates: the scan classifies the business and picks one of three agent
+// templates. Each has its own shared demo agent, switched on by putting the
+// agent's id in app_settings under the key in TEMPLATES below.
+//   trades-quote   - trades who quote for a job at the property
+//   trades-callout - repair and call-out trades (plumbers, electricians...)
+//   appointments   - salons and other appointment businesses
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 // Read at request time so a newly added or changed secret is picked up without a redeploy.
@@ -157,7 +164,7 @@ function htmlToText(html: string) {
     .trim();
   return text.slice(0, MAX_CHARS_PER_PAGE);
 }
-const LINK_WORDS = ["service", "about", "area", "cover", "contact", "faq", "question", "what-we-do", "how", "roof", "render", "clean", "gutter", "patio", "drive", "quote", "team", "work"];
+const LINK_WORDS = ["service", "about", "area", "cover", "contact", "faq", "question", "what-we-do", "how", "roof", "render", "clean", "gutter", "patio", "drive", "quote", "team", "work", "treatment", "book", "menu", "emergency", "repair", "install", "plumb", "electric", "heating", "boiler"];
 function pickLinks(html: string, page: URL) {
   const out = new Map<string, number>();
   for (const m of html.matchAll(/href\s*=\s*["']([^"'#]+)["']/gi)) {
@@ -227,13 +234,13 @@ function spokenEmail(email: string) {
 const PROFILE_SCHEMA = {
   type: "OBJECT",
   properties: {
-    business_type: { type: "STRING", enum: ["trades_quote", "appointments", "other"], description: "trades_quote = trades who quote for jobs at the customer's property (cleaning, roofing, building, gardening, plumbing...). appointments = salons, clinics, lash/brow, beauty. other = anything else." },
+    business_type: { type: "STRING", enum: ["trades_quote", "trades_callout", "appointments", "other"], description: "trades_callout = trades whose customers often need a repair or someone out quickly: plumbers, electricians, heating and gas engineers, boiler repair, drainage, locksmiths, appliance repair, or any trade advertising emergency or same-day call-outs. trades_quote = other trades who look at a job at the customer's property and quote for it: exterior cleaning, roofing, building, landscaping, gardening, fencing, driveways, painting and decorating, window cleaning, flooring. appointments = businesses where clients book an appointment at the premises: hair, lash, brow, nail and beauty salons, barbers, aesthetics, massage, tattoo. other = anything else. If a trade does both installations and repairs or emergencies, choose trades_callout." },
     business_name: { type: "STRING", description: "Trading name exactly as written on the site." },
     business_name_spoken: { type: "STRING", description: "How a receptionist would say the name aloud, e.g. '&' as 'and', starting with 'the' if natural." },
     owner_first_name: { type: "STRING", description: "Owner's first name ONLY if clearly stated on the site, otherwise empty." },
     owner_full_name: { type: "STRING", description: "Owner's full name only if clearly stated, otherwise empty." },
     base_town: { type: "STRING", description: "Town the business is based in, if stated." },
-    services: { type: "ARRAY", items: { type: "STRING" }, description: "Services offered, short lowercase names, max 15. No prices." },
+    services: { type: "ARRAY", items: { type: "STRING" }, description: "Services or treatments offered, short lowercase names, max 15. No prices." },
     problem_examples: { type: "ARRAY", items: { type: "STRING" }, description: "Single nouns a caller might describe a problem with, e.g. roof, gutter, patio. Max 8." },
     unsupported_examples: { type: "ARRAY", items: { type: "STRING" }, description: "Up to 3 closely related services this business does NOT appear to offer, which callers might still ask for." },
     areas: { type: "ARRAY", items: { type: "STRING" }, description: "Towns, cities or counties covered, as stated. Max 15." },
@@ -283,7 +290,7 @@ async function scan(body: any, ip: string, origin: string | null) {
   const { data: recent } = await db.from("website_scans").select("*")
     .eq("domain", domain).in("status", ["ready", "needs_review"]).gte("created_at", since)
     .order("created_at", { ascending: false }).limit(1);
-  if (recent?.[0]) return json(publicResult(recent[0], !!(await demoAgent())), 200, origin);
+  if (recent?.[0]) return json(publicResult(recent[0], !!(await demoAgent(recent[0].template_id))), 200, origin);
 
   const [{ count: ipCount }, { count: domCount }, { count: allCount }] = await Promise.all([
     db.from("website_scans").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("created_at", since),
@@ -346,16 +353,17 @@ async function scan(body: any, ip: string, origin: string | null) {
     if (profile.owner_name && !profile.owner_full_name) profile.owner_full_name = profile.owner_name;
     const kbFacts = cleanList("kb_facts", raw.kb_facts, 25, 220, removed);
     const summary = cleanText("one_line_summary", raw.one_line_summary, 220, removed);
-    const templateId = raw.business_type === "trades_quote" ? "trades-quote" : null;
+    const templateId = TEMPLATE_FOR_TYPE[raw.business_type as string] ?? null;
+    const atPremises = templateId === "appointments"; // clients come to them, so no areas or property problems
 
     const missing: string[] = [];
     if (!profile.business_name) missing.push("business name");
     if (!profile.owner_name) missing.push("owner's first name");
     if (!profile.base_town) missing.push("where you're based");
     if (!profile.services.length) missing.push("services");
-    if (!profile.areas.length) missing.push("areas you cover");
+    if (!profile.areas.length && !atPremises) missing.push("areas you cover");
     if (!profile.business_email) missing.push("business email");
-    if (!profile.problem_examples.length) missing.push("problem examples");
+    if (!profile.problem_examples.length && !atPremises) missing.push("problem examples");
     if (!profile.unsupported_examples.length) missing.push("services you don't offer");
     const status = missing.length || !templateId ? "needs_review" : "ready";
 
@@ -365,7 +373,7 @@ async function scan(body: any, ip: string, origin: string | null) {
       removed, kb_text: kbFacts.join("\n"),
     };
     const { data: saved } = await db.from("website_scans").update(update).eq("id", id).select("*").single();
-    return json(publicResult(saved, !!(await demoAgent())), 200, origin);
+    return json(publicResult(saved, !!(await demoAgent(saved?.template_id))), 200, origin);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     await db.from("website_scans").update({ status: "failed", error: msg.slice(0, 500) }).eq("id", id);
@@ -379,6 +387,7 @@ function publicResult(r: any, demoOn = false) {
   return {
     scan_id: r.id,
     status: r.status,
+    template: r.template_id || null,
     display: {
       business_name: p.business_name || "",
       owner_name: p.owner_name || "",
@@ -400,16 +409,31 @@ function publicResult(r: any, demoOn = false) {
 // A separate key that can only start agent calls (the main key is read-only).
 const elevenKey = () => (Deno.env.get("ELEVENLABS_DEMO_KEY") ?? "").trim();
 const DEMO_LIMITS = { perScan: 2, perIpPerDay: 4, allPerDay: 40 };
-const STANDARD_FLAGS = [
-  "complaints or problems with past work",
-  "active leaks or damaged tiles (urgent)",
-  "commercial properties",
-  "anyone outside the areas covered",
-];
+// One entry per agent template: the business type the scan gives it, the app_settings key
+// holding its demo agent's id, and the things every business of that kind wants flagged.
+const TEMPLATES: Record<string, { setting: string; flags: string[] }> = {
+  "trades-quote": {
+    setting: "demo_agent_trades_quote",
+    flags: ["complaints or problems with past work", "anything urgent or unsafe", "commercial properties", "anyone outside the areas covered"],
+  },
+  "trades-callout": {
+    setting: "demo_agent_trades_callout",
+    flags: ["urgent problems and emergencies", "anything involving gas, fire, smoke or electric shock", "complaints or problems with past work", "commercial properties", "anyone outside the areas covered"],
+  },
+  "appointments": {
+    setting: "demo_agent_appointments",
+    flags: ["cancellations, changes and anyone running late", "reactions or problems after a treatment", "questions about whether a treatment is suitable", "complaints", "group or wedding bookings"],
+  },
+};
+const TEMPLATE_FOR_TYPE: Record<string, string> = {
+  trades_quote: "trades-quote",
+  trades_callout: "trades-callout",
+  appointments: "appointments",
+};
 const joinList = (items: string[], last = "and") =>
   items.length <= 1 ? (items[0] ?? "") : items.slice(0, -1).join(", ") + ` ${last} ` + items[items.length - 1];
 
-function demoVariables(p: any, visitorName: string) {
+function demoVariables(p: any, visitorName: string, templateId: string) {
   const first = (visitorName || "").trim().split(/\s+/)[0] || "";
   const fromForm = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
   const owner = p.owner_name || (/^[A-Z][a-zA-Z'-]{1,20}$/.test(fromForm) ? fromForm : "the owner");
@@ -437,7 +461,7 @@ function demoVariables(p: any, visitorName: string) {
     problem_list: p.problem_examples?.length ? joinList(p.problem_examples, "or") : "property",
     unsupported_list: p.unsupported_examples?.length ? joinList(p.unsupported_examples, "or") : "anything outside the services above",
     areas_list: areas.length ? joinList(areas) : "the local area",
-    flags_list: joinList(STANDARD_FLAGS),
+    flags_list: joinList(TEMPLATES[templateId]?.flags ?? TEMPLATES["trades-quote"].flags),
     photo_channels_short: short,
     photo_channels_long: long,
     photo_send_instructions: send,
@@ -446,12 +470,13 @@ function demoVariables(p: any, visitorName: string) {
 }
 
 const demoReady = (r: any) =>
-  r?.template_id === "trades-quote" && !!r?.profile?.business_name && (r?.profile?.services?.length ?? 0) > 0;
+  !!TEMPLATES[r?.template_id] && !!r?.profile?.business_name && (r?.profile?.services?.length ?? 0) > 0;
 
-// Demos are switched on by putting the demo agent's id in app_settings (and having the key).
-async function demoAgent(): Promise<string | null> {
-  if (!elevenKey()) return null;
-  const { data } = await db.from("app_settings").select("value").eq("key", "demo_agent_trades_quote").maybeSingle();
+// Demos are switched on per template by putting that template's demo agent id in app_settings (and having the key).
+async function demoAgent(templateId: string | null | undefined): Promise<string | null> {
+  const t = templateId ? TEMPLATES[templateId] : null;
+  if (!t || !elevenKey()) return null;
+  const { data } = await db.from("app_settings").select("value").eq("key", t.setting).maybeSingle();
   return data?.value || null;
 }
 
@@ -462,7 +487,7 @@ async function demo(body: any, ip: string, origin: string | null) {
   if (!scanRow) return json({ error: "We couldn't find that scan. Please scan your website again." }, 404, origin);
   if (!demoReady(scanRow)) return json({ error: "We can't run a demo for this business automatically yet. Start your free month and we'll set it up for you.", unavailable: true }, 200, origin);
 
-  const agentId = await demoAgent();
+  const agentId = await demoAgent(scanRow.template_id);
   if (!agentId) return json({ error: "Demo calls are switched off just now. Start your free month and we'll set it up for you.", unavailable: true }, 200, origin);
 
   const ipHash = await sha256(ip + "|" + SERVICE_KEY.slice(-16));
@@ -490,7 +515,8 @@ async function demo(body: any, ip: string, origin: string | null) {
   await db.from("demo_calls").insert({ scan_id: id, ip_hash: ipHash, agent_id: agentId });
   return json({
     signed_url,
-    variables: demoVariables(scanRow.profile, scanRow.name || ""),
+    variables: demoVariables(scanRow.profile, scanRow.name || "", scanRow.template_id),
+    template: scanRow.template_id,
     calls_left: DEMO_LIMITS.perScan - (perScan ?? 0) - 1,
     max_seconds: 150,
   }, 200, origin);
