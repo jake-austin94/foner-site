@@ -62,6 +62,13 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .bf-bar b{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:12px;background:rgba(255,255,255,.2);border-radius:980px;padding:2px 9px;margin-right:8px;white-space:nowrap}
 .bf-bar s{opacity:.7;text-decoration-thickness:1.5px}
 .bf-bar .go{text-decoration:underline;text-underline-offset:2px;margin-left:6px;white-space:nowrap}
+.offer-any{display:none}
+html[data-offer="bf"] .offer-any,html[data-offer="ny"] .offer-any{display:revert}
+html[data-offer="bf"] a.bf-bar{display:block}html[data-offer="ny"] a.bf-bar{display:block}
+html[data-offer="bf"] .plan .bf,html[data-offer="ny"] .plan .bf{display:block}
+html[data-offer="bf"] .plan .was,html[data-offer="ny"] .plan .was{display:inline}
+.o-bf,.o-ny{display:none}
+html[data-offer="bf"] .o-bf,html[data-offer="ny"] .o-ny{display:inline}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .plan .was{font-size:clamp(24px,3.4vw,30px);font-weight:500;color:var(--muted);text-decoration:line-through;text-decoration-thickness:2px;letter-spacing:-0.02em;align-self:center}
 .plan .bf{align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:rgba(26,100,232,.1);border-radius:980px;padding:3px 10px}
@@ -270,13 +277,24 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
   .fx .in.rv,.fx .in.rv-z,.fx .rg.in>*,.fx .chat.in .bubble{opacity:1;transform:none}
 }
 </style>
+<script>
+/* Offer calendar (UK dates, inclusive). Edit here to change when offers start and stop.
+   Outside these windows, or if this script fails, no offer is shown and the normal price stands. */
+(function(){try{
+  var d=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London'}).format(new Date()); // YYYY-MM-DD
+  var o='';
+  if(d>='2026-11-17'&&d<='2026-11-30')o='bf';        // Black Friday, ends Cyber Monday
+  else if(d>='2026-12-01'&&d<='2027-01-02')o='ny';   // New Year offer, ends 2 January
+  document.documentElement.setAttribute('data-offer',o);
+}catch(e){}})();
+</script>
 </head>
 <body>
 
 <svg aria-hidden="true" width="0" height="0" style="position:absolute"><defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A9BF5"/><stop offset="1" stop-color="#5B3CF5"/></linearGradient></defs></svg>
 
 <header>
-  <a class="bf-bar" href="#pricing"><b>Black Friday</b>foner now <s><span class="sr">was </span>£75</s> £49/month · annual <s><span class="sr">was </span>£750</s> £490<span class="go">See the deal</span></a>
+  <a class="bf-bar offer-any" href="#pricing"><b><span class="o-bf">Black Friday</span><span class="o-ny">New Year offer</span></b>foner now <s><span class="sr">was </span>£75</s> £49/month · annual <s><span class="sr">was </span>£750</s> £490<span class="go"><span class="o-bf">Ends Cyber Monday</span><span class="o-ny">Ends 2 January</span></span></a>
   <div class="wrap">
     <a class="logo" href="#top" aria-label="foner home"><img src="assets/foner-logo-horizontal.png" alt="foner" width="101" height="26"></a>
     <nav aria-label="Page">
@@ -596,8 +614,8 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
     <div class="plans rg">
       <div class="plan">
         <h3>Monthly</h3>
-        <span class="bf">Black Friday deal</span>
-        <p class="price"><span class="was"><span class="sr">Was </span>£75</span><span class="amt">£49</span><span class="per">/month</span></p>
+        <span class="bf offer-any"><span class="o-bf">Black Friday deal · ends Cyber Monday</span><span class="o-ny">New Year offer · ends 2 January</span></span>
+        <p class="price"><span class="was offer-any"><span class="sr">Was </span>£75</span><span class="amt">£49</span><span class="per">/month</span></p>
         <p class="after">After your free month. No contract, cancel any time.</p>
         <ul class="incl">
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>First month free, no card needed</span></li>
@@ -614,8 +632,8 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 24px}
       <div class="plan best">
         <span class="badge">2 months free</span>
         <h3>Annual</h3>
-        <span class="bf">Black Friday deal</span>
-        <p class="price"><span class="was"><span class="sr">Was </span>£750</span><span class="amt">£490</span><span class="per">/year</span></p>
+        <span class="bf offer-any"><span class="o-bf">Black Friday deal · ends Cyber Monday</span><span class="o-ny">New Year offer · ends 2 January</span></span>
+        <p class="price"><span class="was offer-any"><span class="sr">Was </span>£750</span><span class="amt">£490</span><span class="per">/year</span></p>
         <p class="after">Pay for 10 months, get 12. Works out at about £41 a month.</p>
         <ul class="incl">
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#fg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Everything in Monthly</span></li>
