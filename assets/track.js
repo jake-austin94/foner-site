@@ -189,15 +189,96 @@
       row.first_seen_at = attr.first_seen_at || null;
       insert('site_leads', row);
       logEvent('form_submit', d.source);
+      beacon({ type: 'enquiry' });
       pixel('Lead');
     }
   };
+
+  // ---- Cookie-free analytics beacon (time on page, scroll, sections, device, country) ----
+  // Sends to the 'track' edge function. No cookies, no storage, no raw IP:
+  // the server stores a salted daily hash only. Needs a web_sites row with slug 'foner'.
+  var BEACON_URL = SUPABASE_URL + '/functions/v1/track';
+  var BEACON_SITE = 'foner';
+
+  function beacon(payload, useBeacon) {
+    payload.site = BEACON_SITE;
+    payload.path = location.pathname;
+    var u = utmFields();
+    UTM_KEYS.forEach(function (k) { payload[k] = u[k]; });
+    var body = JSON.stringify(payload);
+    try {
+      if (useBeacon && navigator.sendBeacon) {
+        navigator.sendBeacon(BEACON_URL, new Blob([body], { type: 'text/plain' }));
+        return;
+      }
+      fetch(BEACON_URL, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: body }).catch(function () {});
+    } catch (e) {}
+  }
+  function bevent(name, detail) { beacon({ type: 'event', name: name, detail: detail || null }); }
+
+  function startBeacon() {
+    beacon({ type: 'pageview', title: document.title, referrer: document.referrer || '' });
+
+    // Active time (tab visible only), deepest scroll, sections seen
+    var active = 0, last = Date.now(), maxScroll = 0, seen = {}, sent = false;
+    function tick() { if (!document.hidden) { active += Date.now() - last; } last = Date.now(); }
+    function scrollPct() {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = h > 0 ? Math.round((window.scrollY / h) * 100) : 100;
+      if (pct > maxScroll) maxScroll = Math.min(pct, 100);
+    }
+    window.addEventListener('scroll', scrollPct, { passive: true });
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { seen[en.target.id || en.target.className.split(' ')[0] || 'section'] = 1; }
+        });
+      }, { threshold: 0.4 });
+      document.querySelectorAll('main > section').forEach(function (el) { io.observe(el); });
+    }
+    function flush() {
+      tick(); scrollPct();
+      if (sent && active < 1000) return;
+      var secs = Math.round(active / 1000);
+      if (secs < 1) return;
+      beacon({ type: 'event', name: 'engagement',
+        detail: 'secs=' + Math.min(secs, 3600) + ';scroll=' + maxScroll + ';sections=' + Object.keys(seen).join(',') }, true);
+      sent = true; active = 0;
+    }
+    document.addEventListener('visibilitychange', function () { if (document.hidden) flush(); else last = Date.now(); });
+    window.addEventListener('pagehide', flush);
+
+    // What people interact with
+    var once = {};
+    function first(name, detail) { if (!once[name]) { once[name] = 1; bevent(name, detail); } }
+    document.addEventListener('play', function (e) {
+      if (e.target && e.target.tagName === 'AUDIO') bevent('demo_play', (e.target.getAttribute('src') || '').split('/').pop());
+    }, true);
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest && e.target.closest('.dtab,.feat');
+      if (t) bevent(t.classList.contains('dtab') ? 'demo_tab' : 'app_tab', (t.textContent || '').trim().slice(0, 60));
+    }, true);
+    document.addEventListener('toggle', function (e) {
+      if (e.target && e.target.tagName === 'DETAILS' && e.target.open) {
+        var q = e.target.querySelector('summary');
+        bevent('faq_open', q ? q.textContent.trim().slice(0, 80) : null);
+      }
+    }, true);
+    document.addEventListener('input', function (e) {
+      if (e.target && /^(calls|value|conv)$/.test(e.target.id)) first('calculator_used', e.target.id);
+    }, true);
+    document.addEventListener('focusin', function (e) {
+      var f = e.target.closest && e.target.closest('form');
+      if (f && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) first('form_start', f.getAttribute('data-source') || f.id || 'form');
+    }, true);
+  }
 
   // ---- Start --------------------------------------------------------------
   function start() {
     swapNumbers();
     consentBanner();
     logEvent('visit');
+    startBeacon();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
