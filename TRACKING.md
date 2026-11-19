@@ -1,6 +1,6 @@
 # foner.uk tracking: what we collect and how
 
-Last updated 19 Nov 2026. Branch `tracking-upgrade` adds the cookie-free beacon (not live until merged and the setup steps below are done).
+Last updated 19 Nov 2026. The cookie-free beacon is live on foner.uk (PR #5 merged, site registered as slug `foner`). Dashboard token for the `stats` function is in `web_sites`.
 
 ## Two systems, both in Supabase project `foner` (lkfriflskqyvwaknzbet)
 
@@ -26,7 +26,7 @@ Added by this branch for foner.uk. No cookies, no localStorage, no raw IP. A vis
 | Referrer site, channel (Paid: meta, Google, Direct…) | referrer + utm | web_visits |
 | utm_* | beacon | web_visits |
 | Device (mobile/tablet/desktop), browser, OS | user agent, server side | web_visits |
-| Country | **not working today** (see gaps) | web_visits.country |
+| Country (2-letter code; IP looked up once per new visit via ipwho.is, then discarded) | server side, added 19 Nov 2026 | web_visits.country |
 | Page title, time on page | beacon | web_pageviews |
 | Active time, deepest scroll %, sections seen | beacon `engagement` event on leaving | web_events (detail `secs=42;scroll=75;sections=hero,deal,hear`) |
 | Demo audio played, demo tab, app tab, FAQ opened, calculator used, form started | beacon | web_events |
@@ -34,17 +34,12 @@ Added by this branch for foner.uk. No cookies, no localStorage, no raw IP. A vis
 | Bots filtered | user agent | not stored |
 
 ## Known gaps
-1. **Country is never recorded** (0 of 127 existing visits have one). The function reads a Cloudflare header that Supabase does not send. Fix needs the function to look the country up from the IP (the IP would go to a third-party geo service, then be discarded). City is possible the same way.
+1. **Country** was never recorded before 19 Nov 2026 (header Supabase does not send). The `track` function now looks it up. Applies to all sites using the function. City is possible the same way but not stored.
 2. **Returning visitors**: system 2 cannot tell, by design. System 1 can, using the localStorage id.
 3. **Meta Pixel not installed**: `META_PIXEL_ID` is empty and the ad account has no dataset. Without it Meta cannot optimise for sign-ups or retarget.
 4. **Server-side Meta events (Conversions API)** not built; needs the Pixel/dataset id and an access token.
 5. **fbclid value** not stored (only whether present).
 6. Consent: the localStorage visitor id in system 1 may need a consent choice under UK PECR. The beacon (system 2) is designed not to. Not legal advice.
-
-## Setup needed before the beacon works (needs your OK)
-1. Insert a `web_sites` row: slug `foner`, domain `foner.uk`, business name foner, notification email, digest on.
-2. Merge `tracking-upgrade` so GitHub Pages deploys it.
-3. Dashboard: the existing `stats` function and dashboard page work per site via the site's dashboard_token.
 
 ## Checking it works
 Open foner.uk in a private tab, scroll, play a demo, close the tab, then look in `web_visits`, `web_pageviews` and `web_events` for site `foner`.
