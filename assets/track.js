@@ -10,7 +10,7 @@
   // ---- Settings -----------------------------------------------------------
   var SUPABASE_URL = 'https://lkfriflskqyvwaknzbet.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_5U5tHfl4OZwQdv63cVDTAg_ttYhhtdJ'; // publishable key, safe in the browser
-  var META_PIXEL_ID = ''; // paste your Pixel ID from Meta Events Manager, e.g. '123456789012345'
+  var META_PIXEL_ID = '1876911170006176'; // Meta dataset "Foner"
 
   // Per-ad demo line numbers. Key is the ad name (utm_content), or the campaign name,
   // or 'default'. Any element with data-demo-number gets the matching number.

@@ -36,7 +36,7 @@ Added by this branch for foner.uk. No cookies, no localStorage, no raw IP. A vis
 ## Known gaps
 1. **Country** was never recorded before 19 Nov 2026 (header Supabase does not send). The `track` function now looks it up. Applies to all sites using the function. City is possible the same way but not stored.
 2. **Returning visitors**: system 2 cannot tell, by design. System 1 can, using the localStorage id.
-3. **Meta Pixel not installed**: `META_PIXEL_ID` is empty and the ad account has no dataset. Without it Meta cannot optimise for sign-ups or retarget.
+3. **Meta Pixel** installed 19 Nov 2026 (ID 1876911170006176), loads only after the visitor accepts the cookie banner. Events: PageView, Contact (phone tap), Lead (sign-up).
 4. **Server-side Meta events (Conversions API)** not built; needs the Pixel/dataset id and an access token.
 5. **fbclid value** not stored (only whether present).
 6. Consent: the localStorage visitor id in system 1 may need a consent choice under UK PECR. The beacon (system 2) is designed not to. Not legal advice.
