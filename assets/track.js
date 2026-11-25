@@ -219,8 +219,12 @@
   function startBeacon() {
     beacon({ type: 'pageview', title: document.title, referrer: document.referrer || '' });
 
-    // Active time (tab visible only), deepest scroll, sections seen
-    var active = 0, last = Date.now(), maxScroll = 0, seen = {}, sent = false;
+    // Active time (tab visible only), deepest scroll, sections seen.
+    // In-app browsers (Instagram, Facebook) often close without firing pagehide,
+    // so the running total is also sent at 5s, 15s, 30s, 60s, 2min and 5min.
+    // The server keeps one engagement row per visit and updates it with the latest total.
+    var active = 0, last = Date.now(), maxScroll = 0, seen = {}, lastSent = 0;
+    var marks = [5, 15, 30, 60, 120, 300], nextMark = 0;
     function tick() { if (!document.hidden) { active += Date.now() - last; } last = Date.now(); }
     function scrollPct() {
       var h = document.documentElement.scrollHeight - window.innerHeight;
@@ -236,17 +240,20 @@
       }, { threshold: 0.4 });
       document.querySelectorAll('main > section').forEach(function (el) { io.observe(el); });
     }
-    function flush() {
+    function report() {
       tick(); scrollPct();
-      if (sent && active < 1000) return;
       var secs = Math.round(active / 1000);
-      if (secs < 1) return;
+      if (secs < 1 || secs === lastSent) return;
+      lastSent = secs;
       beacon({ type: 'event', name: 'engagement',
         detail: 'secs=' + Math.min(secs, 3600) + ';scroll=' + maxScroll + ';sections=' + Object.keys(seen).join(',') }, true);
-      sent = true; active = 0;
     }
-    document.addEventListener('visibilitychange', function () { if (document.hidden) flush(); else last = Date.now(); });
-    window.addEventListener('pagehide', flush);
+    setInterval(function () {
+      tick();
+      if (nextMark < marks.length && active / 1000 >= marks[nextMark]) { nextMark++; report(); }
+    }, 1000);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) report(); else last = Date.now(); });
+    window.addEventListener('pagehide', report);
 
     // What people interact with
     var once = {};
