@@ -43,3 +43,7 @@ Added by this branch for foner.uk. No cookies, no localStorage, no raw IP. A vis
 
 ## Checking it works
 Open foner.uk in a private tab, scroll, play a demo, close the tab, then look in `web_visits`, `web_pageviews` and `web_events` for site `foner`.
+
+
+## Engagement heartbeat (25 Nov 2026)
+The page now reports the running active-time total at 5s, 15s, 30s, 1m, 2m and 5m as well as on exit, because in-app browsers (Instagram/Facebook) often close without firing pagehide. The `track` edge function (v10) keeps one `engagement` row per visit and only ever raises its `secs` value. Visits before this date mostly have no engagement data.
